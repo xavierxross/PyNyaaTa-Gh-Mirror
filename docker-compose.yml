@@ -1,0 +1,30 @@
+version: "2.4"
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    command: flask run --host 0.0.0.0
+    working_dir: /app
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: www
+      MYSQL_HOSTNAME: db
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: secret
+    volumes:
+      - .:/app
+
+  db:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: www
+    volumes:
+      - ./.db:/var/lib/mysql
