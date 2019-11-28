@@ -1,4 +1,4 @@
-from core import db
+from app import db
 
 
 class AnimeFolder(db.Model):

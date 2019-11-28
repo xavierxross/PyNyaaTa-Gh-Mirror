@@ -1,38 +1,41 @@
-from core import app
-from models import *
-from flask import Response, request
-from werkzeug.security import generate_password_hash, check_password_hash
-from functools import wraps
 from os import environ
+from sys import modules
+
+import pymysql
+from flask import Flask
+from flask_httpauth import HTTPBasicAuth
+from flask_sqlalchemy import SQLAlchemy
+
+modules["MySQLdb"] = pymysql
+
+# init DB and migration
+db_user = environ.get('MYSQL_USER')
+db_password = environ.get('MYSQL_PASSWORD')
+db_name = environ.get('MYSQL_DATABASE')
+db_host = environ.get('MYSQL_HOST')
+if not db_host or not db_user or not db_password or not db_name:
+    print('Missing connection environment variables')
+    exit()
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s/%s' % (db_user, db_password, db_host, db_name)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+auth = HTTPBasicAuth()
+db = SQLAlchemy(app)
 
 
-# init HTTP basic auth
-def check_auth(username, password):
-    # This function is called to check if a username / password combination is valid.
+@auth.verify_password
+def verify_password(username, password):
     admin_username = environ.get('ADMIN_USERNAME', 'admin')
     admin_password = environ.get('ADMIN_USERNAME', 'secret')
-    return username == admin_username and password == admin_password
-
-
-def authenticate():
-    # Sends a 401 response that enables basic auth
-    return Response(
-        'Could not verify your access level for that URL.\n'
-        'You have to login with proper credentials', 401,
-        {'WWW-Authenticate': 'Basic realm="Login Required"'})
-
-
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-
-    return decorated
+    return username is admin_username and password is admin_password
 
 
 @app.route('/')
 def hello_world():
     return 'Hello World !'
+
+
+if __name__ == '__main__':
+    app_debug = environ.get('FLASK_ENV', 'production') is 'development'
+    app.run('0.0.0.0', debug=app_debug)
