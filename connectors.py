@@ -198,11 +198,13 @@ class Pantsu(Connector):
                         'href': '%s%s' % (self.base_url, url['href']),
                         'name': self.boldify(url.string),
                         'comment': '',
-                        'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
-                            'icon-floppy', 'fa fa-fw fa-download'),
+                        'link': tds[2].decode_contents()
+                            .replace('icon-magnet', 'fa fa-fw fa-magnet')
+                            .replace('icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
-                        'date': datetime.strptime(tds[7]['title'], '%m/%d/%Y, %I:%M:%S %p %Z+0').strftime(
-                            '%Y-%m-%d %H:%M:%S'),
+                        'date': datetime
+                            .strptime(tds[7]['title'], '%m/%d/%Y, %I:%M:%S %p %Z+0')
+                            .strftime('%Y-%m-%d %H:%M:%S'),
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
@@ -226,7 +228,8 @@ class YggTorrent(Connector):
             raise ConnectorException(self.title)
 
         return '%s/engine/search?do=search&order=desc&sort=%s&category=2145&sub_category=%s&name=%s&page=%s' % (
-        self.base_url, sort_type, category, self.query, page)
+            self.base_url, sort_type, category, self.query, page
+        )
 
     def get_history(self, sort_type=default_sort, page=1, category=None):
         if category is None:
@@ -267,10 +270,10 @@ class YggTorrent(Connector):
                         'lang': self.get_lang(url.string),
                         'href': url['href'],
                         'name': self.boldify(url.string),
-                        'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' % (
-                        url['href'], tds[3].string),
-                        'link': '<a href="%s/engine/download_torrent?id=%s"><i class="fa fa-fw fa-download"></i></a>' % (
-                        self.base_url, re.search('/(\d+)', url['href']).group(1)),
+                        'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
+                                   (url['href'], tds[3].string),
+                        'link': '<a href="%s/engine/download_torrent?id=%s"><i class="fa fa-fw fa-download"></i></a>' %
+                                (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
                         'size': tds[5].string,
                         'date': datetime.fromtimestamp(int(tds[4].div.string)).strftime('%Y-%m-%d %H:%M:%S'),
                         'seeds': check_seeds,
@@ -388,7 +391,7 @@ class Other(Connector):
         return ''
 
     def search(self, sort_type=None, page=1, category=None):
-        return ([], False)
+        return [], False
 
     def get_history(self, sort_type, page, category):
         return []
