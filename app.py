@@ -5,6 +5,7 @@ import pymysql
 from flask import Flask
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 modules["MySQLdb"] = pymysql
 
@@ -18,6 +19,7 @@ if not db_host or not db_user or not db_password or not db_name:
     exit()
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s/%s' % (db_user, db_password, db_host, db_name)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 auth = HTTPBasicAuth()
