@@ -13,7 +13,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: www
-      MYSQL_HOSTNAME: db
+      MYSQL_HOST: db
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: secret
     volumes:

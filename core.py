@@ -11,7 +11,7 @@ app = Flask(__name__)
 db_user = environ.get('MYSQL_USER')
 db_password = environ.get('MYSQL_PASSWORD')
 db_name = environ.get('MYSQL_DATABASE')
-db_host = environ.get('MYSQL_HOSTNAME')
+db_host = environ.get('MYSQL_HOST')
 if not db_host or not db_user or not db_password or not db_name:
     print('Missing connection environment variables')
     exit()
