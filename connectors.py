@@ -31,23 +31,25 @@ class Connector(ABC):
     def get_history(self, sort_type, page, category):
         pass
 
-    def curl_content(self, url, params={}, ajax=False):
+    def curl_content(self, url, params=None, ajax=False):
         if isinstance(self, YggTorrent):
             try:
                 qt_env = {'QT_QPA_PLATFORM': 'offscreen'} if platform is 'linux' else {}
-                qt_output = run('phantomjs --cookies-file=/tmp/cookies.json delay.js "%s" 5000' % url, env=qt_env, shell=True, check=True, capture_output=True, timeout=7000)
+                qt_output = run('phantomjs --cookies-file=/tmp/cookies.json delay.js "%s" 5000' % url, env=qt_env,
+                                shell=True, check=True, capture_output=True, timeout=7000)
                 output = qt_output.stdout
                 http_code = 200
             except Exception as e:
                 output = ''
                 http_code = 500
+                print(e)
         else:
             if ajax:
                 headers = {'X-Requested-With': 'XMLHttpRequest'}
             else:
                 headers = {}
 
-            if params:
+            if params is not None:
                 response = requests.post(url, params, timeout=10, headers=headers)
             else:
                 response = requests.get(url, timeout=10, headers=headers)
@@ -57,19 +59,21 @@ class Connector(ABC):
 
         return {'http_code': http_code, 'output': output}
 
-    def get_instance(self, url):
+    @staticmethod
+    def get_instance(url, query):
         if 'nyaa.si' in url:
-            return Nyaa()
+            return Nyaa(query)
         elif 'nyaa.net' in url:
-            return Pantsu()
+            return Pantsu(query)
         elif 'anime-ultime' in url:
-            return AnimeUltime()
+            return AnimeUltime(query)
         elif 'ygg' in url:
-            return YggTorrent()
+            return YggTorrent(query)
         else:
-            return Other()
+            return Other(query)
 
-    def get_lang(self, str_to_test):
+    @staticmethod
+    def get_lang(str_to_test):
         if re.search('(vf|multi|french)', str_to_test, re.IGNORECASE):
             return 'fr'
         else:
@@ -133,7 +137,8 @@ class Nyaa(Connector):
                         'lang': self.get_lang(url.string),
                         'href': '%s%s' % (self.base_url, url['href']),
                         'name': self.boldify(url.string),
-                        'comment': str(urls[0]).replace('/view/', '%s%s' % (self.base_url, '/view/')) if has_comment else '',
+                        'comment': str(urls[0]).replace('/view/',
+                                                        '%s%s' % (self.base_url, '/view/')) if has_comment else '',
                         'link': tds[2].decode_contents().replace('/download/', '%s%s' % (self.base_url, '/download/')),
                         'size': tds[3].string,
                         'date': '%s:00' % tds[4].string,
@@ -143,10 +148,9 @@ class Nyaa(Connector):
                         'class': 'is-%s' % tr['class'][0]
                     })
 
-            return (data, valid_trs is not len(trs))
+            return data, valid_trs is not len(trs)
         else:
             raise ConnectorException(self.title)
-        return (data, False)
 
 
 class Pantsu(Connector):
@@ -194,19 +198,20 @@ class Pantsu(Connector):
                         'href': '%s%s' % (self.base_url, url['href']),
                         'name': self.boldify(url.string),
                         'comment': '',
-                        'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace('icon-floppy', 'fa fa-fw fa-download'),
+                        'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
+                            'icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
-                        'date': datetime.strptime(tds[7]['title'], '%m/%d/%Y, %I:%M:%S %p %Z+0').strftime('%Y-%m-%d %H:%M:%S'),
+                        'date': datetime.strptime(tds[7]['title'], '%m/%d/%Y, %I:%M:%S %p %Z+0').strftime(
+                            '%Y-%m-%d %H:%M:%S'),
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
                         'class': 'is-%s' % tr['class'][0]
                     })
 
-            return (data, valid_trs is not len(trs))
+            return data, valid_trs is not len(trs)
         else:
             raise ConnectorException(self.title)
-        return (data, False)
 
 
 class YggTorrent(Connector):
@@ -220,7 +225,8 @@ class YggTorrent(Connector):
         if category is None:
             raise ConnectorException(self.title)
 
-        return '%s/engine/search?do=search&order=desc&sort=%s&category=2145&sub_category=%s&name=%s&page=%s' % (self.base_url, sort_type, category, self.query, page)
+        return '%s/engine/search?do=search&order=desc&sort=%s&category=2145&sub_category=%s&name=%s&page=%s' % (
+        self.base_url, sort_type, category, self.query, page)
 
     def get_history(self, sort_type=default_sort, page=1, category=None):
         if category is None:
@@ -261,8 +267,10 @@ class YggTorrent(Connector):
                         'lang': self.get_lang(url.string),
                         'href': url['href'],
                         'name': self.boldify(url.string),
-                        'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' % (url['href'], tds[3].string),
-                        'link': '<a href="%s/engine/download_torrent?id=%s"><i class="fa fa-fw fa-download"></i></a>' % (self.base_url, re.search('/(\d+)', url['href']).group(1)),
+                        'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' % (
+                        url['href'], tds[3].string),
+                        'link': '<a href="%s/engine/download_torrent?id=%s"><i class="fa fa-fw fa-download"></i></a>' % (
+                        self.base_url, re.search('/(\d+)', url['href']).group(1)),
                         'size': tds[5].string,
                         'date': datetime.fromtimestamp(int(tds[4].div.string)).strftime('%Y-%m-%d %H:%M:%S'),
                         'seeds': check_seeds,
@@ -271,10 +279,9 @@ class YggTorrent(Connector):
                         'class': ''
                     })
 
-            return (data, valid_trs is len(trs))
+            return data, valid_trs is len(trs)
         else:
             raise ConnectorException(self.title)
-        return (data, False)
 
 
 class AnimeUltime(Connector):
@@ -286,7 +293,7 @@ class AnimeUltime(Connector):
 
     def get_full_search_url(self, sort_type=default_sort, page=1, category=None):
         if sort_type is 'history':
-            page_date = datetime.now() - timedelta((page-1)*365/12)
+            page_date = datetime.now() - timedelta((page - 1) * 365 / 12)
             from_date = page_date.strftime('%m%Y')
         else:
             from_date = ''
@@ -332,9 +339,10 @@ class AnimeUltime(Connector):
                     'name': self.boldify(name[0].string),
                     'type': ani_type[0].string.replace(':', '')
                 })
+
+            return data, False
         else:
             raise ConnectorException(self.title)
-        return (data, False)
 
     def get_history(self, sort_type=default_sort, page=1, category=None):
         data = []
@@ -365,9 +373,10 @@ class AnimeUltime(Connector):
                         'type': tds[4].string,
                         'date': release_date
                     })
+
+            return data
         else:
             raise ConnectorException(self.title)
-        return data
 
 
 class Other(Connector):
