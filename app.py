@@ -1,29 +1,9 @@
 from os import environ
-from sys import modules
 
-import pymysql
-from flask import Flask
-from flask_httpauth import HTTPBasicAuth
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.middleware.proxy_fix import ProxyFix
+from flask import redirect, render_template, url_for
 
-modules["MySQLdb"] = pymysql
-
-# init DB and migration
-db_user = environ.get('MYSQL_USER')
-db_password = environ.get('MYSQL_PASSWORD')
-db_name = environ.get('MYSQL_DATABASE')
-db_host = environ.get('MYSQL_HOST')
-if not db_host or not db_user or not db_password or not db_name:
-    print('Missing connection environment variables')
-    exit()
-
-app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s/%s' % (db_user, db_password, db_host, db_name)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-auth = HTTPBasicAuth()
-db = SQLAlchemy(app)
+from config import app, auth
+from models import SearchForm
 
 
 @auth.verify_password
@@ -34,8 +14,16 @@ def verify_password(username, password):
 
 
 @app.route('/')
-def hello_world():
-    return 'Hello World !'
+def home():
+    form = SearchForm()
+    if form.validate_on_submit():
+        return redirect(url_for('search', q=form.q))
+    return render_template('home.html', form=form)
+
+
+@app.route('/search')
+def search():
+    return 'Hello!'
 
 
 if __name__ == '__main__':

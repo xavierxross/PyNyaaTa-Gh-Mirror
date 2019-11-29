@@ -1,4 +1,8 @@
-from app import db
+from flask_wtf import FlaskForm
+from wtforms.fields.html5 import SearchField
+from wtforms.validators import DataRequired
+
+from config import db
 
 
 class AnimeFolder(db.Model):
@@ -24,3 +28,7 @@ class AnimeLink(db.Model):
     vf = db.Column(db.Boolean, nullable=False)
     title_id = db.Column(db.Integer, db.ForeignKey('title.id'))
     title = db.relationship('AnimeTitle', back_populates="links")
+
+
+class SearchForm(FlaskForm):
+    q = SearchField('search', validators=[DataRequired])

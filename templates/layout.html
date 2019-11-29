@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Xefir's animes search engine (っ^‿^)っ">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicons/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma-tooltip.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-start">
+        {% block internal_buttons %}{% endblock %}
+        {% block external_buttons %}{% endblock %}
+        {% block add_button %}{% endblock %}
+    </div>
+    <div class="navbar-end">
+        <form action="{{ url_for('search') }}" class="navbar-item">
+            {{ form.csrf_token }}
+            <div class="field has-addons">
+                <div class="control">
+                    {{ form.q(placeholder='Search ...', class='input') }}
+                </div>
+                <div class="control">
+                    <button type="submit" class="button is-info">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</nav>
+
+<section class="section" role="main">
+    {% block body %}{% endblock %}
+</section>
+
+</body>
+</html>
