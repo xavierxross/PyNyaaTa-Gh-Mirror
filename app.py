@@ -52,5 +52,6 @@ def admin():
 
 
 if __name__ == '__main__':
-    app_debug = environ.get('FLASK_ENV', 'production') is 'development'
-    app.run('0.0.0.0', debug=app_debug)
+    app_debug = environ.get('FLASK_ENV', 'production') == 'development'
+    app_port = environ.get('FLASK_PORT', 5000)
+    app.run('0.0.0.0', app_port, app_debug)
