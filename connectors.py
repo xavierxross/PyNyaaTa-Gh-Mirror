@@ -1,35 +1,51 @@
-from subprocess import run
-from bs4 import BeautifulSoup
+import locale
+import re
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
+from enum import Enum
+from subprocess import run
 from sys import platform
-import re
+
 import requests
-import locale
+from bs4 import BeautifulSoup
 
 
-class ConnectorException(Exception):
-    def __init__(self, connector_type):
-        super().__init__("Error, can't grab data from %s" % connector_type)
+class ConnectorReturn(Enum):
+    SEARCH = 1
+    HISTORY = 2
 
 
 class Connector(ABC):
     blacklist_words = ['Chris44', 'Vol.']
 
-    def __init__(self, query):
+    def __init__(self, query, page=1, return_type=ConnectorReturn.SEARCH, category=None):
         self.query = query
+        self.category = category
+        self.data = []
+        self.is_more = False
+        self.on_error = False
+        self.page = page
+        self.return_type = return_type
 
     @abstractmethod
-    def get_full_search_url(self, sort_type, page, category):
+    def get_full_search_url(self):
         pass
 
     @abstractmethod
-    def search(self, sort_type, page, category):
+    def __search(self):
         pass
 
     @abstractmethod
-    def get_history(self, sort_type, page, category):
+    def __get_history(self):
         pass
+
+    def run(self):
+        if not len(self.data):
+            if self.return_type is ConnectorReturn.SEARCH:
+                self.__search()
+            elif self.return_type is ConnectorReturn.HISTORY:
+                self.__get_history()
+        return self
 
     def curl_content(self, url, params=None, ajax=False):
         if isinstance(self, YggTorrent):
@@ -91,19 +107,20 @@ class Nyaa(Connector):
     title = 'Nyaa'
     favicon = 'nyaa.png'
     base_url = 'https://nyaa.si'
-    default_sort = 'size'
 
-    def get_full_search_url(self, sort_type=default_sort, page=1, category=None):
+    def get_full_search_url(self):
+        sort_type = 'size'
+        if self.return_type is ConnectorReturn.HISTORY:
+            sort_type = 'date'
+
         to_query = '(%s vf)|(%s vostfr)|(%s multi)|(%s french)' % (self.query, self.query, self.query, self.query)
-        return '%s/?f=0&c=1_3&s=%s&o=desc&q=%s&p=%s' % (self.base_url, sort_type, to_query, page)
+        return '%s/?f=0&c=1_3&s=%s&o=desc&q=%s&p=%s' % (self.base_url, sort_type, to_query, self.page)
 
-    def get_history(self, sort_type=default_sort, page=1, category=None):
-        output = self.search(sort_type, page, category)
-        return output[0]
+    def __get_history(self):
+        self.__search()
 
-    def search(self, sort_type=default_sort, page=1, category=None):
-        data = []
-        response = self.curl_content(self.get_full_search_url(sort_type, page))
+    def __search(self):
+        response = self.curl_content(self.get_full_search_url())
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -133,7 +150,7 @@ class Nyaa(Connector):
 
                     valid_trs = valid_trs + 1
 
-                    data.append({
+                    self.data.append({
                         'lang': self.get_lang(url.string),
                         'href': '%s%s' % (self.base_url, url['href']),
                         'name': self.boldify(url.string),
@@ -148,9 +165,9 @@ class Nyaa(Connector):
                         'class': 'is-%s' % tr['class'][0]
                     })
 
-            return data, valid_trs is not len(trs)
+            self.is_more = valid_trs is not len(trs)
         else:
-            raise ConnectorException(self.title)
+            self.on_error = True
 
 
 class Pantsu(Connector):
@@ -158,19 +175,20 @@ class Pantsu(Connector):
     title = 'Pantsu'
     favicon = 'pantsu.png'
     base_url = 'https://nyaa.net'
-    default_sort = 4
 
-    def get_full_search_url(self, sort_type=default_sort, page=1, category=None):
+    def get_full_search_url(self):
+        sort_type = 4
+        if self.return_type is ConnectorReturn.HISTORY:
+            sort_type = 2
+
         to_query = '(%s vf)|(%s vostfr)|(%s multi)|(%s french)' % (self.query, self.query, self.query, self.query)
-        return '%s/search/%s?c=3_13&order=false&q=%s&sort=%s' % (self.base_url, page, to_query, sort_type)
+        return '%s/search/%s?c=3_13&order=false&q=%s&sort=%s' % (self.base_url, self.page, to_query, sort_type)
 
-    def get_history(self, sort_type=default_sort, page=1, category=None):
-        output = self.search(sort_type, page, category)
-        return output[0]
+    def __get_history(self):
+        self.__search()
 
-    def search(self, sort_type=default_sort, page=1, category=None):
-        data = []
-        response = self.curl_content(self.get_full_search_url(sort_type, page))
+    def __search(self):
+        response = self.curl_content(self.get_full_search_url())
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -193,7 +211,7 @@ class Pantsu(Connector):
 
                     valid_trs = valid_trs + 1
 
-                    data.append({
+                    self.data.append({
                         'lang': self.get_lang(url.string),
                         'href': '%s%s' % (self.base_url, url['href']),
                         'name': self.boldify(url.string),
@@ -211,9 +229,9 @@ class Pantsu(Connector):
                         'class': 'is-%s' % tr['class'][0]
                     })
 
-            return data, valid_trs is not len(trs)
+            self.is_more = valid_trs is not len(trs)
         else:
-            raise ConnectorException(self.title)
+            self.on_error = True
 
 
 class YggTorrent(Connector):
@@ -221,70 +239,65 @@ class YggTorrent(Connector):
     title = 'YggTorrent'
     favicon = 'yggtorrent.png'
     base_url = 'https://www2.yggtorrent.pe'
-    default_sort = 'size'
 
-    def get_full_search_url(self, sort_type=default_sort, page=1, category=None):
-        if category is None:
-            raise ConnectorException(self.title)
+    def get_full_search_url(self):
+        sort_type = 'size'
+        if self.return_type is ConnectorReturn.HISTORY:
+            sort_type = 'date'
 
         return '%s/engine/search?do=search&order=desc&sort=%s&category=2145&sub_category=%s&name=%s&page=%s' % (
-            self.base_url, sort_type, category, self.query, page
+            self.base_url, sort_type, self.category, self.query, self.page
         )
 
-    def get_history(self, sort_type=default_sort, page=1, category=None):
-        if category is None:
-            raise ConnectorException(self.title)
+    def __get_history(self):
+        self.__search()
 
-        output = self.search(sort_type, page, category)
-        return output[0]
+    def __search(self):
+        if self.category is None:
+            self.on_error = True
+        else:
+            response = self.curl_content(self.get_full_search_url())
 
-    def search(self, sort_type=default_sort, page=1, category=None):
-        if category is None:
-            raise ConnectorException(self.title)
+            if response['http_code'] is 200:
+                html = BeautifulSoup(response['output'], 'html.parser')
+                trs = html.select('table.table tr')
+                valid_trs = 0
 
-        data = []
-        response = self.curl_content(self.get_full_search_url(sort_type, page, category))
-
-        if response['http_code'] is 200:
-            html = BeautifulSoup(response['output'], 'html.parser')
-            trs = html.select('table.table tr')
-            valid_trs = 0
-
-            for i, tr in enumerate(trs):
-                if not i:
-                    continue
-
-                tds = tr.findAll('td')
-                check_downloads = int(tds[6].string)
-                check_seeds = int(tds[7].string)
-
-                if check_downloads or check_seeds:
-                    url = tds[1].a
-
-                    if any(url.string in word for word in self.blacklist_words):
+                for i, tr in enumerate(trs):
+                    if not i:
                         continue
 
-                    valid_trs = valid_trs + 1
+                    tds = tr.findAll('td')
+                    check_downloads = int(tds[6].string)
+                    check_seeds = int(tds[7].string)
 
-                    data.append({
-                        'lang': self.get_lang(url.string),
-                        'href': url['href'],
-                        'name': self.boldify(url.string),
-                        'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
-                                   (url['href'], tds[3].string),
-                        'link': '<a href="%s/engine/download_torrent?id=%s"><i class="fa fa-fw fa-download"></i></a>' %
-                                (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
-                        'size': tds[5].string,
-                        'date': datetime.fromtimestamp(int(tds[4].div.string)).strftime('%Y-%m-%d %H:%M:%S'),
-                        'seeds': check_seeds,
-                        'leechs': tds[8].string,
-                        'downloads': check_downloads,
-                        'class': ''
-                    })
+                    if check_downloads or check_seeds:
+                        url = tds[1].a
 
-            return data, valid_trs is len(trs)
-        else:
-            raise ConnectorException(self.title)
+                        if any(url.string in word for word in self.blacklist_words):
+                            continue
+
+                        valid_trs = valid_trs + 1
+
+                        self.data.append({
+                            'lang': self.get_lang(url.string),
+                            'href': url['href'],
+                            'name': self.boldify(url.string),
+                            'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
+                                       (url['href'], tds[3].string),
+                            'link': '<a href="%s/engine/download_torrent?id=%s"><i class="fa fa-fw fa-download"></i></a>' %
+                                    (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
+                            'size': tds[5].string,
+                            'date': datetime.fromtimestamp(int(tds[4].div.string)).strftime('%Y-%m-%d %H:%M:%S'),
+                            'seeds': check_seeds,
+                            'leechs': tds[8].string,
+                            'downloads': check_downloads,
+                            'class': ''
+                        })
+
+                self.is_more = valid_trs is not len(trs)
+            else:
+                self.on_error = True
 
 
 class AnimeUltime(Connector):
@@ -292,20 +305,20 @@ class AnimeUltime(Connector):
     title = 'Anime-Ultime'
     favicon = 'animeultime.png'
     base_url = 'http://www.anime-ultime.net'
-    default_sort = 'search'
 
-    def get_full_search_url(self, sort_type=default_sort, page=1, category=None):
-        if sort_type is 'history':
-            page_date = datetime.now() - timedelta((page - 1) * 365 / 12)
+    def get_full_search_url(self):
+        from_date = ''
+        sort_type = 'search'
+
+        if self.return_type is ConnectorReturn.HISTORY:
+            page_date = datetime.now() - timedelta((self.page - 1) * 365 / 12)
             from_date = page_date.strftime('%m%Y')
-        else:
-            from_date = ''
+            sort_type = 'history'
 
         return '%s/%s-0-1/%s' % (self.base_url, sort_type, from_date)
 
-    def search(self, sort_type=default_sort, page=1, category=None):
-        data = []
-        response = self.curl_content(self.get_full_search_url(sort_type, page), {'search': self.query})
+    def __search(self):
+        response = self.curl_content(self.get_full_search_url(), {'search': self.query})
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -325,7 +338,7 @@ class AnimeUltime(Connector):
 
                     url = tds[0].a
 
-                    data.append({
+                    self.data.append({
                         'lang': 'jp',
                         'href': '%s/%s' % (self.base_url, url['href']),
                         'name': url.decode_contents(),
@@ -336,20 +349,17 @@ class AnimeUltime(Connector):
                 name = html.select('h1')
                 ani_type = html.select('div.titre')
 
-                data.append({
+                self.data.append({
                     'lang': 'jp',
-                    'href': '%s%s' % (self.get_full_search_url('file'), player[0]['data-serie']),
+                    'href': '%s%s' % (self.get_file_url(), player[0]['data-serie']),
                     'name': self.boldify(name[0].string),
                     'type': ani_type[0].string.replace(':', '')
                 })
-
-            return data, False
         else:
-            raise ConnectorException(self.title)
+            self.on_error = True
 
-    def get_history(self, sort_type=default_sort, page=1, category=None):
-        data = []
-        response = self.curl_content(self.get_full_search_url('history', page))
+    def __get_history(self):
+        response = self.curl_content(self.get_full_search_url())
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -369,7 +379,7 @@ class AnimeUltime(Connector):
                     release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ').strftime('%Y-%m-%d %H:%M:%S')
                     locale.setlocale(locale.LC_ALL, current_locale)
 
-                    data.append({
+                    self.data.append({
                         'lang': 'jp',
                         'href': '%s%s' % (self.get_full_search_url('file'), link['href']),
                         'name': link.string,
@@ -377,21 +387,17 @@ class AnimeUltime(Connector):
                         'date': release_date
                     })
 
-            return data
-        else:
-            raise ConnectorException(self.title)
-
 
 class Other(Connector):
     color = 'is-danger'
     title = 'Other'
     favicon = 'blank.png'
 
-    def get_full_search_url(self, sort_type=None, page=1, category=None):
-        return ''
+    def get_full_search_url(self):
+        pass
 
-    def search(self, sort_type=None, page=1, category=None):
-        return [], False
+    def __search(self):
+        pass
 
-    def get_history(self, sort_type, page, category):
-        return []
+    def __get_history(self):
+        pass

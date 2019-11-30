@@ -1,8 +1,9 @@
 from os import environ
 
-from flask import redirect, render_template, url_for
+from flask import redirect, render_template, url_for, request
 
 from config import app, auth
+from connectors import *
 from models import SearchForm
 
 
@@ -15,14 +16,38 @@ def verify_password(username, password):
 
 @app.route('/')
 def home():
-    form = SearchForm()
-    if form.validate_on_submit():
-        return redirect(url_for('search', q=form.q))
-    return render_template('home.html', form=form)
+    return render_template('home.html', form=SearchForm())
 
 
 @app.route('/search')
 def search():
+    query = request.args.get('q')
+    if not query:
+        return redirect(url_for('home'))
+
+    results = [
+        Nyaa(query).run(),
+        Pantsu(query).run(),
+        YggTorrent(query, category=2179).run(),
+        YggTorrent(query, category=2178).run(),
+        AnimeUltime(query).run(),
+    ]
+    return render_template('search.html', form=SearchForm(), connectors=results)
+
+
+@app.route('/latest')
+def latest():
+    return 'Hello!'
+
+
+@app.route('/list')
+def list_animes():
+    return 'Hello!'
+
+
+@app.route('/admin')
+@auth.login_required
+def admin():
     return 'Hello!'
 
 

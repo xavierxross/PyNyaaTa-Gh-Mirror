@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Animes torrents search engine - {{ request.args.get('q') }}{% endblock %}
+{% block body %}
+    <table class="table is-bordered is-striped is-narrow is-fullwidth is-hoverable search">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>
+                <i class="fa fa-comment"></i>
+            </th>
+            <th>Link</th>
+            <th>Size</th>
+            <th>Date</th>
+            <th>
+                <i class="fa fa-arrow-up"></i>
+            </th>
+            <th>
+                <i class="fa fa-arrow-down"></i>
+            </th>
+            <th>
+                <i class="fa fa fa-check"></i>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for connector in connectors %}
+            {% for torrent in connector.data %}
+
+            {% enfor %}
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
