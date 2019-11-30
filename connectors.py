@@ -9,10 +9,17 @@ from sys import platform
 import requests
 from bs4 import BeautifulSoup
 
+from models import AnimeLink
+
 
 class ConnectorReturn(Enum):
     SEARCH = 1
     HISTORY = 2
+
+
+class ConnectorLang(Enum):
+    FR = '🇫🇷'
+    JP = '🇯🇵'
 
 
 class Connector(ABC):
@@ -90,9 +97,9 @@ class Connector(ABC):
     @staticmethod
     def get_lang(str_to_test):
         if re.search('(vf|multi|french)', str_to_test, re.IGNORECASE):
-            return 'fr'
+            return ConnectorLang.FR
         else:
-            return 'jp'
+            return ConnectorLang.JP
 
     def boldify(self, str_to_replace):
         if self.query:
@@ -106,6 +113,7 @@ class Nyaa(Connector):
     title = 'Nyaa'
     favicon = 'nyaa.png'
     base_url = 'https://nyaa.si'
+    is_light = False
 
     def get_full_search_url(self):
         sort_type = 'size'
@@ -149,10 +157,11 @@ class Nyaa(Connector):
                             continue
 
                         valid_trs = valid_trs + 1
+                        href = '%s%s' % (self.base_url, url['href'])
 
                         self.data.append({
                             'lang': self.get_lang(url.string),
-                            'href': '%s%s' % (self.base_url, url['href']),
+                            'href': href,
                             'name': self.boldify(url.string),
                             'comment': str(urls[0]).replace('/view/',
                                                             '%s%s' % (self.base_url, '/view/')) if has_comment else '',
@@ -163,7 +172,8 @@ class Nyaa(Connector):
                             'seeds': check_seeds,
                             'leechs': tds[6].string,
                             'downloads': check_downloads,
-                            'class': 'is-%s' % tr['class'][0]
+                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
+                                                                                                     tr['class'][0]
                         })
 
                 self.on_error = False
@@ -175,6 +185,7 @@ class Pantsu(Connector):
     title = 'Pantsu'
     favicon = 'pantsu.png'
     base_url = 'https://nyaa.net'
+    is_light = False
 
     def get_full_search_url(self):
         sort_type = 4
@@ -211,10 +222,11 @@ class Pantsu(Connector):
                             continue
 
                         valid_trs = valid_trs + 1
+                        href = '%s%s' % (self.base_url, url['href'])
 
                         self.data.append({
                             'lang': self.get_lang(url.string),
-                            'href': '%s%s' % (self.base_url, url['href']),
+                            'href': href,
                             'name': self.boldify(url.string),
                             'comment': '',
                             'link': tds[2].decode_contents()
@@ -227,7 +239,8 @@ class Pantsu(Connector):
                             'seeds': check_seeds,
                             'leechs': tds[5].string,
                             'downloads': check_downloads,
-                            'class': 'is-%s' % tr['class'][0]
+                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
+                                                                                                     tr['class'][0]
                         })
 
                 self.on_error = False
@@ -239,6 +252,7 @@ class YggTorrent(Connector):
     title = 'YggTorrent'
     favicon = 'yggtorrent.png'
     base_url = 'https://www2.yggtorrent.pe'
+    is_light = False
 
     def get_full_search_url(self):
         sort_type = 'size'
@@ -291,7 +305,7 @@ class YggTorrent(Connector):
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
-                            'class': ''
+                            'class': self.color if AnimeLink.query.filter_by(link=url['href']).first() else ''
                         })
 
                 self.on_error = False
@@ -303,6 +317,7 @@ class AnimeUltime(Connector):
     title = 'Anime-Ultime'
     favicon = 'animeultime.png'
     base_url = 'http://www.anime-ultime.net'
+    is_light = True
 
     def get_full_search_url(self):
         from_date = ''
@@ -336,23 +351,27 @@ class AnimeUltime(Connector):
                             continue
 
                         url = tds[0].a
+                        href = '%s/%s' % (self.base_url, url['href'])
 
                         self.data.append({
-                            'lang': 'jp',
+                            'lang': ConnectorLang.JP,
                             'href': '%s/%s' % (self.base_url, url['href']),
                             'name': url.decode_contents(),
-                            'type': tds[1].string
+                            'type': tds[1].string,
+                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                         })
                 else:
                     player = html.select('div.AUVideoPlayer')
                     name = html.select('h1')
                     ani_type = html.select('div.titre')
+                    href = '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie'])
 
                     self.data.append({
-                        'lang': 'jp',
+                        'lang': ConnectorLang.JP,
                         'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
                         'name': self.boldify(name[0].string),
-                        'type': ani_type[0].string.replace(':', '')
+                        'type': ani_type[0].string.replace(':', ''),
+                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                     })
 
             self.on_error = False
@@ -378,13 +397,15 @@ class AnimeUltime(Connector):
                         locale.setlocale(locale.LC_ALL, ('fr_FR', 'UTF-8'))
                         release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ').strftime('%Y-%m-%d %H:%M:%S')
                         locale.setlocale(locale.LC_ALL, current_locale)
+                        href = '%s/%s' % (self.base_url, link['href'])
 
                         self.data.append({
-                            'lang': 'jp',
+                            'lang': ConnectorLang.JP,
                             'href': '%s/%s' % (self.base_url, link['href']),
                             'name': link.string,
                             'type': tds[4].string,
-                            'date': release_date
+                            'date': release_date,
+                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                         })
 
                 self.on_error = False
@@ -394,6 +415,7 @@ class Other(Connector):
     color = 'is-danger'
     title = 'Other'
     favicon = 'blank.png'
+    is_light = True
 
     def get_full_search_url(self):
         pass

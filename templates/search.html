@@ -26,8 +26,64 @@
 
         {% for connector in connectors %}
             {% for torrent in connector.data %}
+                {% if not loop.index0 %}
+                    <th colspan="8">{{ connector.title }}</th>
+                {% endif %}
 
+                <tr class="{{ torrent.class }}">
+                    <td>
+                        {{ torrent.lang.value }}
+                        <a href="{{ torrent.href }}" target="_blank">
+                            {{ torrent.name|safe }}
+                        </a>
+                    </td>
+
+                    {% if connector.is_light %}
+                        <td colspan="7">
+                            {{ torrent.type }}
+                        </td>
+                    {% else %}
+                        <td>
+                            {{ torrent.comment|safe }}
+                        </td>
+                        <td>
+                            {{ torrent.link|safe }}
+                        </td>
+                        <td>
+                            {{ torrent.size }}
+                        </td>
+                        <td>
+                            {{ torrent.date }}
+                        </td>
+                        <td>
+                            {{ torrent.seeds }}
+                        </td>
+                        <td>
+                            {{ torrent.leechs }}
+                        </td>
+                        <td>
+                            {{ torrent.downloads }}
+                        </td>
+                    {% endif %}
+                </tr>
             {% endfor %}
+
+            {% if connector.is_more %}
+                <tr>
+                    <th colspan="8">
+                        <a href="{{ connector.get_full_search_url() }}" target="_blank">More ...</a>
+                    </th>
+                </tr>
+            {% endif %}
+
+            {% if connector.on_error %}
+                <tr class="is-danger">
+                    <th colspan="8" class="error">
+                        Error, can't grab data from {{ connector.title }}
+                        <a href="{{ connector.get_full_search_url() }}" target="_blank">Go to the website -></a>
+                    </th>
+                </tr>
+            {% endif %}
         {% endfor %}
 
         </tbody>
