@@ -25,9 +25,38 @@ class ConnectorLang(Enum):
 class Connector(ABC):
     blacklist_words = ['Chris44', 'Vol.']
 
-    def __init__(self, query, page=1, return_type=ConnectorReturn.SEARCH, category=None):
+    @property
+    @abstractmethod
+    def color(self):
+        pass
+
+    @property
+    @abstractmethod
+    def title(self):
+        pass
+
+    @property
+    @abstractmethod
+    def favicon(self):
+        pass
+
+    @property
+    @abstractmethod
+    def base_url(self):
+        pass
+
+    @property
+    @abstractmethod
+    def is_light(self):
+        pass
+
+    @property
+    @abstractmethod
+    def is_behind_cloudflare(self):
+        pass
+
+    def __init__(self, query, page=1, return_type=ConnectorReturn.SEARCH):
         self.query = query
-        self.category = category
         self.data = []
         self.is_more = False
         self.on_error = True
@@ -54,7 +83,7 @@ class Connector(ABC):
         return self
 
     def curl_content(self, url, params=None, ajax=False):
-        if isinstance(self, YggTorrent):
+        if self.is_behind_cloudflare:
             try:
                 qt_env = {'QT_QPA_PLATFORM': 'offscreen'} if platform is 'linux' else {}
                 qt_output = run('phantomjs --cookies-file=/tmp/cookies.json delay.js "%s" 5000' % url, env=qt_env,
@@ -114,6 +143,7 @@ class Nyaa(Connector):
     favicon = 'nyaa.png'
     base_url = 'https://nyaa.si'
     is_light = False
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         sort_type = 'size'
@@ -186,6 +216,7 @@ class Pantsu(Connector):
     favicon = 'pantsu.png'
     base_url = 'https://nyaa.net'
     is_light = False
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         sort_type = 4
@@ -253,6 +284,8 @@ class YggTorrent(Connector):
     favicon = 'yggtorrent.png'
     base_url = 'https://www2.yggtorrent.pe'
     is_light = False
+    is_behind_cloudflare = True
+    category = 2179
 
     def get_full_search_url(self):
         sort_type = 'size'
@@ -312,12 +345,23 @@ class YggTorrent(Connector):
                 self.is_more = valid_trs is not len(trs)
 
 
+class YggAnimation(YggTorrent):
+    color = 'is-success'
+    title = 'YggAnimation'
+    favicon = 'yggtorrent.png'
+    base_url = 'https://www2.yggtorrent.pe'
+    is_light = False
+    is_behind_cloudflare = True
+    category = 2178
+
+
 class AnimeUltime(Connector):
     color = 'is-warning'
     title = 'Anime-Ultime'
     favicon = 'animeultime.png'
     base_url = 'http://www.anime-ultime.net'
     is_light = True
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         from_date = ''
@@ -416,6 +460,7 @@ class Other(Connector):
     title = 'Other'
     favicon = 'blank.png'
     is_light = True
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         pass

@@ -16,7 +16,7 @@ def verify_password(username, password):
 
 @app.route('/')
 def home():
-    return render_template('home.html', form=SearchForm())
+    return render_template('layout.html', form=SearchForm())
 
 
 @app.route('/search')
@@ -28,8 +28,8 @@ def search():
     results = [
         Nyaa(query).run(),
         Pantsu(query).run(),
-        YggTorrent(query, category=2179).run(),
-        YggTorrent(query, category=2178).run(),
+        YggTorrent(query).run(),
+        YggAnimation(query).run(),
         AnimeUltime(query).run(),
     ]
     return render_template('search.html', form=SearchForm(), connectors=results)
@@ -37,6 +37,21 @@ def search():
 
 @app.route('/latest')
 def latest():
+    torrents = [
+        Nyaa('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
+        Pantsu('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
+        YggTorrent('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
+        YggAnimation('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
+        AnimeUltime('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
+    ]
+
+    results = []
+
+    for torrent in torrents:
+        results = results + torrent.data
+
+    print(results)
+
     return 'Hello!'
 
 
