@@ -1,10 +1,11 @@
+from operator import itemgetter
 from os import environ
 
 from flask import redirect, render_template, url_for, request
 
 from config import app, auth
 from connectors import *
-from models import SearchForm
+from models import SearchForm, AnimeTitle
 
 
 @auth.verify_password
@@ -46,13 +47,15 @@ def latest():
     ]
 
     results = []
-
     for torrent in torrents:
         results = results + torrent.data
+    results.sort(key=itemgetter('date'))
 
-    print(results)
+    for keyword in AnimeTitle.query.all():
+        for result in results:
+            result['name'] = Connector.boldify(result['name'], keyword)
 
-    return 'Hello!'
+    return render_template('latest.html', form=SearchForm(), torrents=results)
 
 
 @app.route('/list')

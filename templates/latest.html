@@ -21,6 +21,55 @@
         </thead>
         <tbody>
 
+        {% for torrent in torrents %}
+            <tr class="{{ torrent.class }}">
+
+            {% if torrent.self.is_light %}
+                <td colspan="3">
+                    <img class="favicon" src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
+                    <i>&nbsp;</i>
+                    {{ torrent.lang.value }}
+                    <a href="{{ torrent.href }}" target="_blank">
+                        {{ torrent.name }}
+                    </a>
+                </td>
+                <td>
+                    {{ torrent.date }}
+                </td>
+                <td colspan="3">
+                    {{ torrent.type }}
+                </td>
+            {% else %}
+{#                <td>#}
+{#                    <img class="favicon" src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">#}
+{#                    <i>&nbsp;</i>#}
+{#                    {{ torrent.lang.value }}#}
+{#                    <a href="<?php e($tr['href']); ?>" target="_blank">#}
+{#                        <?php e(preg_replace('/' . implode('|', $keywords) . '/i', '<b>\0</b>', $this->raw($tr['name']))); ?>#}
+{#                    </a>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <?php e($this->raw($tr['link'])); ?>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <?php e($tr['size']); ?>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <?php e($tr['date']); ?>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <?php e($tr['seeds']); ?>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <?php e($tr['leechs']); ?>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <?php e($tr['check']); ?>#}
+{#                </td>#}
+            {% endif %}
+
+            </tr>
+        {% endfor %}
 
         </tbody>
     </table>

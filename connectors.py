@@ -130,9 +130,10 @@ class Connector(ABC):
         else:
             return ConnectorLang.JP
 
-    def boldify(self, str_to_replace):
-        if self.query:
-            return re.sub('(%s)' % self.query, r'<b>\1</b>', str_to_replace, flags=re.IGNORECASE)
+    @staticmethod
+    def boldify(str_to_replace, keyword):
+        if keyword:
+            return re.sub('(%s)' % keyword, r'<b>\1</b>', str_to_replace, flags=re.IGNORECASE)
         else:
             return str_to_replace
 
@@ -190,15 +191,16 @@ class Nyaa(Connector):
                         href = '%s%s' % (self.base_url, url['href'])
 
                         self.data.append({
+                            'self': self,
                             'lang': self.get_lang(url.string),
                             'href': href,
-                            'name': self.boldify(url.string),
+                            'name': self.boldify(url.string, self.query),
                             'comment': str(urls[0]).replace('/view/',
                                                             '%s%s' % (self.base_url, '/view/')) if has_comment else '',
                             'link': tds[2].decode_contents().replace('/download/',
                                                                      '%s%s' % (self.base_url, '/download/')),
                             'size': tds[3].string,
-                            'date': '%s:00' % tds[4].string,
+                            'date': datetime.strptime(tds[4].string, '%Y-%m-%d %H:%M'),
                             'seeds': check_seeds,
                             'leechs': tds[6].string,
                             'downloads': check_downloads,
@@ -254,19 +256,34 @@ class Pantsu(Connector):
 
                         valid_trs = valid_trs + 1
                         href = '%s%s' % (self.base_url, url['href'])
+                        splitted_date = re.search(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+)\s(\w+)\s.+', tds[7]['title'])
+
+                        current_locale = locale.getlocale()
+                        locale.setlocale(locale.LC_ALL, ('en_US', 'UTF-8'))
+                        formatted_date = datetime.strptime(
+                            '%s/%s/%s, %s:%s:%s %s' % (
+                                splitted_date[1],
+                                splitted_date[2],
+                                splitted_date[3],
+                                splitted_date[4].zfill(2).replace('00', '12'),
+                                splitted_date[5],
+                                splitted_date[6],
+                                splitted_date[7]
+                            ), '%m/%d/%Y, %I:%M:%S %p'
+                        )
+                        locale.setlocale(locale.LC_ALL, current_locale)
 
                         self.data.append({
+                            'self': self,
                             'lang': self.get_lang(url.string),
                             'href': href,
-                            'name': self.boldify(url.string),
+                            'name': self.boldify(url.string, self.query),
                             'comment': '',
                             'link': tds[2].decode_contents()
                                 .replace('icon-magnet', 'fa fa-fw fa-magnet')
                                 .replace('icon-floppy', 'fa fa-fw fa-download'),
                             'size': tds[3].string,
-                            'date': datetime
-                                .strptime(tds[7]['title'], '%m/%d/%Y, %I:%M:%S %p %Z+0')
-                                .strftime('%Y-%m-%d %H:%M:%S'),
+                            'date': formatted_date,
                             'seeds': check_seeds,
                             'leechs': tds[5].string,
                             'downloads': check_downloads,
@@ -325,16 +342,17 @@ class YggTorrent(Connector):
                         valid_trs = valid_trs + 1
 
                         self.data.append({
+                            'self': self,
                             'lang': self.get_lang(url.string),
                             'href': url['href'],
-                            'name': self.boldify(url.string),
+                            'name': self.boldify(url.string, self.query),
                             'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
                                        (url['href'], tds[3].string),
                             'link': '<a href="%s/engine/download_torrent?id=%s">'
                                     '<i class="fa fa-fw fa-download"></i>'
                                     '</a>' % (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
                             'size': tds[5].string,
-                            'date': datetime.fromtimestamp(int(tds[4].div.string)).strftime('%Y-%m-%d %H:%M:%S'),
+                            'date': datetime.fromtimestamp(int(tds[4].div.string)),
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
@@ -368,7 +386,7 @@ class AnimeUltime(Connector):
         sort_type = 'search'
 
         if self.return_type is ConnectorReturn.HISTORY:
-            page_date = datetime.now() - timedelta((self.page - 1) * 365 / 12)
+            page_date = datetime.now() - timedelta((int(self.page) - 1) * 365 / 12)
             from_date = page_date.strftime('%m%Y')
             sort_type = 'history'
 
@@ -398,6 +416,7 @@ class AnimeUltime(Connector):
                         href = '%s/%s' % (self.base_url, url['href'])
 
                         self.data.append({
+                            'self': self,
                             'lang': ConnectorLang.JP,
                             'href': '%s/%s' % (self.base_url, url['href']),
                             'name': url.decode_contents(),
@@ -411,9 +430,10 @@ class AnimeUltime(Connector):
                     href = '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie'])
 
                     self.data.append({
+                        'self': self,
                         'lang': ConnectorLang.JP,
                         'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
-                        'name': self.boldify(name[0].string),
+                        'name': self.boldify(name[0].string, self.query),
                         'type': ani_type[0].string.replace(':', ''),
                         'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                     })
@@ -439,11 +459,12 @@ class AnimeUltime(Connector):
 
                         current_locale = locale.getlocale()
                         locale.setlocale(locale.LC_ALL, ('fr_FR', 'UTF-8'))
-                        release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ').strftime('%Y-%m-%d %H:%M:%S')
+                        release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ')
                         locale.setlocale(locale.LC_ALL, current_locale)
                         href = '%s/%s' % (self.base_url, link['href'])
 
                         self.data.append({
+                            'self': self,
                             'lang': ConnectorLang.JP,
                             'href': '%s/%s' % (self.base_url, link['href']),
                             'name': link.string,
@@ -459,6 +480,7 @@ class Other(Connector):
     color = 'is-danger'
     title = 'Other'
     favicon = 'blank.png'
+    base_url = ''
     is_light = True
     is_behind_cloudflare = False
 
