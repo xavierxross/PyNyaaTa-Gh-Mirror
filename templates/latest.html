@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %} - Latest{% endblock %}
+{% block title %} - Latest torrents{% endblock %}
 {% block body %}
     <table class="table is-bordered is-striped is-narrow is-fullwidth is-hoverable is-size-7">
         <thead>
@@ -24,53 +24,68 @@
         {% for torrent in torrents %}
             <tr class="{{ torrent.class }}">
 
-            {% if torrent.self.is_light %}
-                <td colspan="3">
-                    <img class="favicon" src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
-                    <i>&nbsp;</i>
-                    {{ torrent.lang.value }}
-                    <a href="{{ torrent.href }}" target="_blank">
-                        {{ torrent.name }}
-                    </a>
-                </td>
-                <td>
-                    {{ torrent.date }}
-                </td>
-                <td colspan="3">
-                    {{ torrent.type }}
-                </td>
-            {% else %}
-{#                <td>#}
-{#                    <img class="favicon" src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">#}
-{#                    <i>&nbsp;</i>#}
-{#                    {{ torrent.lang.value }}#}
-{#                    <a href="<?php e($tr['href']); ?>" target="_blank">#}
-{#                        <?php e(preg_replace('/' . implode('|', $keywords) . '/i', '<b>\0</b>', $this->raw($tr['name']))); ?>#}
-{#                    </a>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <?php e($this->raw($tr['link'])); ?>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <?php e($tr['size']); ?>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <?php e($tr['date']); ?>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <?php e($tr['seeds']); ?>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <?php e($tr['leechs']); ?>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <?php e($tr['check']); ?>#}
-{#                </td>#}
-            {% endif %}
+                {% if torrent.self.is_light %}
+                    <td colspan="3">
+                        <img class="favicon"
+                             src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
+                        <i>&nbsp;</i>
+                        {{ torrent.lang.value }}
+                        <a href="{{ torrent.href }}" target="_blank">
+                            {{ torrent.name }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ torrent.date }}
+                    </td>
+                    <td colspan="3">
+                        {{ torrent.type }}
+                    </td>
+                {% else %}
+                    <td>
+                        <img class="favicon"
+                             src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
+                        <i>&nbsp;</i>
+                        {{ torrent.lang.value }}
+                        <a href="{{ torrent.href }}" target="_blank">
+                            {{ torrent.name }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ torrent.link|safe }}
+                        {{ torrent.comment|safe }}
+                    </td>
+                    <td>
+                        {{ torrent.size }}
+                    </td>
+                    <td>
+                        {{ torrent.date }}
+                    </td>
+                    <td>
+                        {{ torrent.seeds }}
+                    </td>
+                    <td>
+                        {{ torrent.leechs }}
+                    </td>
+                    <td>
+                        {{ torrent.downloads }}
+                    </td>
+                {% endif %}
 
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
+
+    <nav class="pagination is-right" role="navigation" aria-label="pagination">
+        {% if page > 1 %}
+            <a class="pagination-previous" href="{{ url_for('latest', q=request.args.get('q'), page=(page - 1)) }}">
+                Previous
+            </a>
+        {% endif %}
+        <a class="pagination-next" href="{{ url_for('latest', q=request.args.get('q'), page=(page + 1)) }}">
+            Next page
+        </a>
+        <ul class="pagination-list"></ul>
+    </nav>
 {% endblock %}

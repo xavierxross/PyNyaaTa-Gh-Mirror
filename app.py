@@ -38,29 +38,33 @@ def search():
 
 @app.route('/latest')
 def latest():
+    page = request.args.get('page', 1)
+
     torrents = [
-        Nyaa('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
-        Pantsu('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
-        YggTorrent('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
-        YggAnimation('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
-        AnimeUltime('', return_type=ConnectorReturn.HISTORY, page=request.args.get('page', 1)).run(),
+        Nyaa('', return_type=ConnectorReturn.HISTORY, page=page).run(),
+        Pantsu('', return_type=ConnectorReturn.HISTORY, page=page).run(),
+        YggTorrent('', return_type=ConnectorReturn.HISTORY, page=page).run(),
+        YggAnimation('', return_type=ConnectorReturn.HISTORY, page=page).run(),
+        AnimeUltime('', return_type=ConnectorReturn.HISTORY, page=page).run(),
     ]
 
     results = []
     for torrent in torrents:
         results = results + torrent.data
-    results.sort(key=itemgetter('date'))
+    results.sort(key=itemgetter('date'), reverse=True)
 
     for keyword in AnimeTitle.query.all():
         for result in results:
             result['name'] = Connector.boldify(result['name'], keyword)
 
-    return render_template('latest.html', form=SearchForm(), torrents=results)
+    return render_template('latest.html', form=SearchForm(), torrents=results, page=page)
 
 
 @app.route('/list')
 def list_animes():
-    return 'Hello!'
+    results = []
+
+    return render_template('list.html', form=SearchForm(), torrents=results)
 
 
 @app.route('/admin')

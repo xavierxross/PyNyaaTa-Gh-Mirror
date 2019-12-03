@@ -149,7 +149,7 @@ class Nyaa(Connector):
     def get_full_search_url(self):
         sort_type = 'size'
         if self.return_type is ConnectorReturn.HISTORY:
-            sort_type = 'date'
+            sort_type = 'id'
 
         to_query = '(%s vf)|(%s vostfr)|(%s multi)|(%s french)' % (self.query, self.query, self.query, self.query)
         return '%s/?f=0&c=1_3&s=%s&o=desc&q=%s&p=%s' % (self.base_url, sort_type, to_query, self.page)
@@ -299,7 +299,7 @@ class YggTorrent(Connector):
     color = 'is-success'
     title = 'YggTorrent'
     favicon = 'yggtorrent.png'
-    base_url = 'https://www2.yggtorrent.pe'
+    base_url = 'https://www2.yggtorrent.ws'
     is_light = False
     is_behind_cloudflare = True
     category = 2179
@@ -307,7 +307,7 @@ class YggTorrent(Connector):
     def get_full_search_url(self):
         sort_type = 'size'
         if self.return_type is ConnectorReturn.HISTORY:
-            sort_type = 'date'
+            sort_type = 'publish_date'
 
         return '%s/engine/search?do=search&order=desc&sort=%s&category=2145&sub_category=%s&name=%s&page=%s' % (
             self.base_url, sort_type, self.category, self.query, self.page
