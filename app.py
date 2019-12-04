@@ -33,6 +33,7 @@ def search():
         YggAnimation(query).run(),
         AnimeUltime(query).run(),
     ]
+
     return render_template('search.html', form=SearchForm(), connectors=results)
 
 
@@ -56,6 +57,9 @@ def latest():
     for keyword in AnimeTitle.query.all():
         for result in results:
             result['name'] = Connector.boldify(result['name'], keyword)
+
+    for result in results:
+        result['self'] = Connector.get_instance(result['href'], '')
 
     return render_template('latest.html', form=SearchForm(), torrents=results, page=page)
 

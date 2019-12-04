@@ -3,6 +3,7 @@ import re
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from enum import Enum
+from functools import wraps
 from subprocess import run
 from sys import platform
 
@@ -20,6 +21,46 @@ class ConnectorReturn(Enum):
 class ConnectorLang(Enum):
     FR = '🇫🇷'
     JP = '🇯🇵'
+
+
+class Cache:
+    CACHE_TIMEOUT = 60 * 60
+    CACHE_DATA = {}
+
+    def cache_data(self, f):
+        @wraps(f)
+        def wrapper(*args, **kwds):
+            connector = args[0]
+            timestamp = datetime.now().timestamp()
+
+            if connector.__class__.__name__ not in self.CACHE_DATA:
+                self.CACHE_DATA[connector.__class__.__name__] = {}
+            if f.__name__ not in self.CACHE_DATA[connector.__class__.__name__]:
+                self.CACHE_DATA[connector.__class__.__name__][f.__name__] = {}
+            if connector.query not in self.CACHE_DATA[connector.__class__.__name__][f.__name__]:
+                self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query] = {}
+            if connector.page not in self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query]:
+                self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
+                    'data': {},
+                    'timeout': 0
+                }
+
+            cached_data = self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page]
+            if cached_data['timeout'] > timestamp:
+                connector.data = cached_data['data']
+                return
+
+            ret = f(*args, **kwds)
+            self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
+                'data': connector.data,
+                'timeout': timestamp + self.CACHE_TIMEOUT
+            }
+            return ret
+
+        return wrapper
+
+
+ConnectorCache = Cache()
 
 
 class Connector(ABC):
@@ -71,6 +112,7 @@ class Connector(ABC):
     def search(self):
         pass
 
+    @abstractmethod
     def get_history(self):
         pass
 
@@ -109,6 +151,17 @@ class Connector(ABC):
             http_code = response.status_code
 
         return {'http_code': http_code, 'output': output}
+
+    @staticmethod
+    def abord_on_success(f):
+        @wraps(f)
+        def wrapper(*args, **kwds):
+            connector = args[0]
+            if not connector.on_error:
+                return
+            return f(*args, **kwds)
+
+        return wrapper
 
     @staticmethod
     def get_instance(url, query):
@@ -157,59 +210,59 @@ class Nyaa(Connector):
     def get_history(self):
         self.search()
 
+    @ConnectorCache.cache_data
+    @Connector.abord_on_success
     def search(self):
-        if self.on_error:
-            response = self.curl_content(self.get_full_search_url())
+        response = self.curl_content(self.get_full_search_url())
 
-            if response['http_code'] is 200:
-                html = BeautifulSoup(response['output'], 'html.parser')
-                trs = html.select('table.torrent-list tr')
-                valid_trs = 0
+        if response['http_code'] is 200:
+            html = BeautifulSoup(response['output'], 'html.parser')
+            trs = html.select('table.torrent-list tr')
+            valid_trs = 0
 
-                for i, tr in enumerate(trs):
-                    if not i:
+            for i, tr in enumerate(trs):
+                if not i:
+                    continue
+
+                tds = tr.findAll('td')
+                check_downloads = int(tds[7].string)
+                check_seeds = int(tds[5].string)
+
+                if check_downloads or check_seeds:
+                    urls = tds[1].findAll('a')
+
+                    if len(urls) > 1:
+                        url = urls[1]
+                        has_comment = True
+                    else:
+                        url = urls[0]
+                        has_comment = False
+
+                    if any(url.string in word for word in self.blacklist_words):
                         continue
 
-                    tds = tr.findAll('td')
-                    check_downloads = int(tds[7].string)
-                    check_seeds = int(tds[5].string)
+                    valid_trs = valid_trs + 1
+                    href = '%s%s' % (self.base_url, url['href'])
 
-                    if check_downloads or check_seeds:
-                        urls = tds[1].findAll('a')
+                    self.data.append({
+                        'lang': self.get_lang(url.string),
+                        'href': href,
+                        'name': self.boldify(url.string, self.query),
+                        'comment': str(urls[0]).replace('/view/',
+                                                        '%s%s' % (self.base_url, '/view/')) if has_comment else '',
+                        'link': tds[2].decode_contents().replace('/download/',
+                                                                 '%s%s' % (self.base_url, '/download/')),
+                        'size': tds[3].string,
+                        'date': datetime.strptime(tds[4].string, '%Y-%m-%d %H:%M'),
+                        'seeds': check_seeds,
+                        'leechs': tds[6].string,
+                        'downloads': check_downloads,
+                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
+                                                                                                 tr['class'][0]
+                    })
 
-                        if len(urls) > 1:
-                            url = urls[1]
-                            has_comment = True
-                        else:
-                            url = urls[0]
-                            has_comment = False
-
-                        if any(url.string in word for word in self.blacklist_words):
-                            continue
-
-                        valid_trs = valid_trs + 1
-                        href = '%s%s' % (self.base_url, url['href'])
-
-                        self.data.append({
-                            'self': self,
-                            'lang': self.get_lang(url.string),
-                            'href': href,
-                            'name': self.boldify(url.string, self.query),
-                            'comment': str(urls[0]).replace('/view/',
-                                                            '%s%s' % (self.base_url, '/view/')) if has_comment else '',
-                            'link': tds[2].decode_contents().replace('/download/',
-                                                                     '%s%s' % (self.base_url, '/download/')),
-                            'size': tds[3].string,
-                            'date': datetime.strptime(tds[4].string, '%Y-%m-%d %H:%M'),
-                            'seeds': check_seeds,
-                            'leechs': tds[6].string,
-                            'downloads': check_downloads,
-                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
-                                                                                                     tr['class'][0]
-                        })
-
-                self.on_error = False
-                self.is_more = valid_trs is not len(trs)
+            self.on_error = False
+            self.is_more = valid_trs is not len(trs)
 
 
 class Pantsu(Connector):
@@ -231,68 +284,68 @@ class Pantsu(Connector):
     def get_history(self):
         self.search()
 
+    @ConnectorCache.cache_data
+    @Connector.abord_on_success
     def search(self):
-        if self.on_error:
-            response = self.curl_content(self.get_full_search_url())
+        response = self.curl_content(self.get_full_search_url())
 
-            if response['http_code'] is 200:
-                html = BeautifulSoup(response['output'], 'html.parser')
-                trs = html.select('div.results tr')
-                valid_trs = 0
+        if response['http_code'] is 200:
+            html = BeautifulSoup(response['output'], 'html.parser')
+            trs = html.select('div.results tr')
+            valid_trs = 0
 
-                for i, tr in enumerate(trs):
-                    if not i:
+            for i, tr in enumerate(trs):
+                if not i:
+                    continue
+
+                tds = tr.findAll('td')
+                check_downloads = int(tds[6].string.replace('-', '0'))
+                check_seeds = int(tds[4].string.replace('-', '0'))
+
+                if check_downloads or check_seeds:
+                    url = tds[1].a
+
+                    if any(url.string in word for word in self.blacklist_words):
                         continue
 
-                    tds = tr.findAll('td')
-                    check_downloads = int(tds[6].string.replace('-', '0'))
-                    check_seeds = int(tds[4].string.replace('-', '0'))
+                    valid_trs = valid_trs + 1
+                    href = '%s%s' % (self.base_url, url['href'])
+                    splitted_date = re.search(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+)\s(\w+)\s.+', tds[7]['title'])
 
-                    if check_downloads or check_seeds:
-                        url = tds[1].a
+                    current_locale = locale.getlocale()
+                    locale.setlocale(locale.LC_ALL, ('en_US', 'UTF-8'))
+                    formatted_date = datetime.strptime(
+                        '%s/%s/%s, %s:%s:%s %s' % (
+                            splitted_date[1],
+                            splitted_date[2],
+                            splitted_date[3],
+                            splitted_date[4].zfill(2).replace('00', '12'),
+                            splitted_date[5],
+                            splitted_date[6],
+                            splitted_date[7]
+                        ), '%m/%d/%Y, %I:%M:%S %p'
+                    )
+                    locale.setlocale(locale.LC_ALL, current_locale)
 
-                        if any(url.string in word for word in self.blacklist_words):
-                            continue
+                    self.data.append({
+                        'lang': self.get_lang(url.string),
+                        'href': href,
+                        'name': self.boldify(url.string, self.query),
+                        'comment': '',
+                        'link': tds[2].decode_contents()
+                            .replace('icon-magnet', 'fa fa-fw fa-magnet')
+                            .replace('icon-floppy', 'fa fa-fw fa-download'),
+                        'size': tds[3].string,
+                        'date': formatted_date,
+                        'seeds': check_seeds,
+                        'leechs': tds[5].string,
+                        'downloads': check_downloads,
+                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
+                                                                                                 tr['class'][0]
+                    })
 
-                        valid_trs = valid_trs + 1
-                        href = '%s%s' % (self.base_url, url['href'])
-                        splitted_date = re.search(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+)\s(\w+)\s.+', tds[7]['title'])
-
-                        current_locale = locale.getlocale()
-                        locale.setlocale(locale.LC_ALL, ('en_US', 'UTF-8'))
-                        formatted_date = datetime.strptime(
-                            '%s/%s/%s, %s:%s:%s %s' % (
-                                splitted_date[1],
-                                splitted_date[2],
-                                splitted_date[3],
-                                splitted_date[4].zfill(2).replace('00', '12'),
-                                splitted_date[5],
-                                splitted_date[6],
-                                splitted_date[7]
-                            ), '%m/%d/%Y, %I:%M:%S %p'
-                        )
-                        locale.setlocale(locale.LC_ALL, current_locale)
-
-                        self.data.append({
-                            'self': self,
-                            'lang': self.get_lang(url.string),
-                            'href': href,
-                            'name': self.boldify(url.string, self.query),
-                            'comment': '',
-                            'link': tds[2].decode_contents()
-                                .replace('icon-magnet', 'fa fa-fw fa-magnet')
-                                .replace('icon-floppy', 'fa fa-fw fa-download'),
-                            'size': tds[3].string,
-                            'date': formatted_date,
-                            'seeds': check_seeds,
-                            'leechs': tds[5].string,
-                            'downloads': check_downloads,
-                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
-                                                                                                     tr['class'][0]
-                        })
-
-                self.on_error = False
-                self.is_more = valid_trs is not len(trs)
+            self.on_error = False
+            self.is_more = valid_trs is not len(trs)
 
 
 class YggTorrent(Connector):
@@ -316,8 +369,10 @@ class YggTorrent(Connector):
     def get_history(self):
         self.search()
 
+    @ConnectorCache.cache_data
+    @Connector.abord_on_success
     def search(self):
-        if self.category and self.on_error:
+        if self.category:
             response = self.curl_content(self.get_full_search_url())
 
             if response['http_code'] is 200:
@@ -342,7 +397,6 @@ class YggTorrent(Connector):
                         valid_trs = valid_trs + 1
 
                         self.data.append({
-                            'self': self,
                             'lang': self.get_lang(url.string),
                             'href': url['href'],
                             'name': self.boldify(url.string, self.query),
@@ -392,88 +446,87 @@ class AnimeUltime(Connector):
 
         return '%s/%s-0-1/%s' % (self.base_url, sort_type, from_date)
 
+    @ConnectorCache.cache_data
+    @Connector.abord_on_success
     def search(self):
-        if self.on_error:
-            response = self.curl_content(self.get_full_search_url(), {'search': self.query})
+        response = self.curl_content(self.get_full_search_url(), {'search': self.query})
 
-            if response['http_code'] is 200:
-                html = BeautifulSoup(response['output'], 'html.parser')
-                title = html.select('div.title')
+        if response['http_code'] is 200:
+            html = BeautifulSoup(response['output'], 'html.parser')
+            title = html.select('div.title')
 
-                if 'Recherche' in title[0].string:
-                    trs = html.select('table.jtable tr')
+            if 'Recherche' in title[0].string:
+                trs = html.select('table.jtable tr')
 
-                    for i, tr in enumerate(trs):
-                        if not i:
-                            continue
+                for i, tr in enumerate(trs):
+                    if not i:
+                        continue
 
-                        tds = tr.findAll('td')
+                    tds = tr.findAll('td')
 
-                        if len(tds) < 2:
-                            continue
+                    if len(tds) < 2:
+                        continue
 
-                        url = tds[0].a
-                        href = '%s/%s' % (self.base_url, url['href'])
-
-                        self.data.append({
-                            'self': self,
-                            'lang': ConnectorLang.JP,
-                            'href': '%s/%s' % (self.base_url, url['href']),
-                            'name': url.decode_contents(),
-                            'type': tds[1].string,
-                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
-                        })
-                else:
-                    player = html.select('div.AUVideoPlayer')
-                    name = html.select('h1')
-                    ani_type = html.select('div.titre')
-                    href = '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie'])
+                    url = tds[0].a
+                    href = '%s/%s' % (self.base_url, url['href'])
 
                     self.data.append({
-                        'self': self,
                         'lang': ConnectorLang.JP,
-                        'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
-                        'name': self.boldify(name[0].string, self.query),
-                        'type': ani_type[0].string.replace(':', ''),
+                        'href': '%s/%s' % (self.base_url, url['href']),
+                        'name': url.decode_contents(),
+                        'type': tds[1].string,
+                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
+                    })
+            else:
+                player = html.select('div.AUVideoPlayer')
+                name = html.select('h1')
+                ani_type = html.select('div.titre')
+                href = '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie'])
+
+                self.data.append({
+                    'lang': ConnectorLang.JP,
+                    'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
+                    'name': self.boldify(name[0].string, self.query),
+                    'type': ani_type[0].string.replace(':', ''),
+                    'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
+                })
+
+            self.on_error = False
+
+    @ConnectorCache.cache_data
+    @Connector.abord_on_success
+    def get_history(self):
+        response = self.curl_content(self.get_full_search_url())
+
+        if response['http_code'] is 200:
+            html = BeautifulSoup(response['output'], 'html.parser')
+            tables = html.select('table.jtable')
+            h3s = html.findAll('h3')
+
+            for i, table in enumerate(tables):
+                for j, tr in enumerate(table.findAll('tr')):
+                    if not j:
+                        continue
+
+                    tds = tr.findAll('td')
+                    link = tds[0].a
+
+                    current_locale = locale.getlocale()
+                    locale.setlocale(locale.LC_ALL, ('fr_FR', 'UTF-8'))
+                    release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ')
+                    locale.setlocale(locale.LC_ALL, current_locale)
+                    href = '%s/%s' % (self.base_url, link['href'])
+
+                    self.data.append({
+                        'lang': ConnectorLang.JP,
+                        'href': '%s/%s' % (self.base_url, link['href']),
+                        'name': link.string,
+                        'type': tds[4].string,
+                        'date': release_date,
                         'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                     })
 
             self.on_error = False
-
-    def get_history(self):
-        if self.on_error:
-            response = self.curl_content(self.get_full_search_url())
-
-            if response['http_code'] is 200:
-                html = BeautifulSoup(response['output'], 'html.parser')
-                tables = html.select('table.jtable')
-                h3s = html.findAll('h3')
-
-                for i, table in enumerate(tables):
-                    for j, tr in enumerate(table.findAll('tr')):
-                        if not j:
-                            continue
-
-                        tds = tr.findAll('td')
-                        link = tds[0].a
-
-                        current_locale = locale.getlocale()
-                        locale.setlocale(locale.LC_ALL, ('fr_FR', 'UTF-8'))
-                        release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ')
-                        locale.setlocale(locale.LC_ALL, current_locale)
-                        href = '%s/%s' % (self.base_url, link['href'])
-
-                        self.data.append({
-                            'self': self,
-                            'lang': ConnectorLang.JP,
-                            'href': '%s/%s' % (self.base_url, link['href']),
-                            'name': link.string,
-                            'type': tds[4].string,
-                            'date': release_date,
-                            'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
-                        })
-
-                self.on_error = False
 
 
 class Other(Connector):
