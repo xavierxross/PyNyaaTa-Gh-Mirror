@@ -41,20 +41,22 @@ class Cache:
                 self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query] = {}
             if connector.page not in self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query]:
                 self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
-                    'data': {},
                     'timeout': 0
                 }
 
             cached_data = self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page]
             if cached_data['timeout'] > timestamp:
                 connector.data = cached_data['data']
+                connector.is_more = cached_data['is_more']
                 return
 
             ret = f(*args, **kwds)
-            self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
-                'data': connector.data,
-                'timeout': timestamp + self.CACHE_TIMEOUT
-            }
+            if not connector.on_error:
+                self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
+                    'data': connector.data,
+                    'timeout': timestamp + self.CACHE_TIMEOUT,
+                    'is_more': connector.is_more
+                }
             return ret
 
         return wrapper
@@ -247,7 +249,7 @@ class Nyaa(Connector):
                     self.data.append({
                         'lang': self.get_lang(url.string),
                         'href': href,
-                        'name': self.boldify(url.string, self.query),
+                        'name': url.string,
                         'comment': str(urls[0]).replace('/view/',
                                                         '%s%s' % (self.base_url, '/view/')) if has_comment else '',
                         'link': tds[2].decode_contents().replace('/download/',
@@ -330,7 +332,7 @@ class Pantsu(Connector):
                     self.data.append({
                         'lang': self.get_lang(url.string),
                         'href': href,
-                        'name': self.boldify(url.string, self.query),
+                        'name': url.string,
                         'comment': '',
                         'link': tds[2].decode_contents()
                             .replace('icon-magnet', 'fa fa-fw fa-magnet')
@@ -399,7 +401,7 @@ class YggTorrent(Connector):
                         self.data.append({
                             'lang': self.get_lang(url.string),
                             'href': url['href'],
-                            'name': self.boldify(url.string, self.query),
+                            'name': url.string,
                             'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
                                        (url['href'], tds[3].string),
                             'link': '<a href="%s/engine/download_torrent?id=%s">'
@@ -473,7 +475,7 @@ class AnimeUltime(Connector):
                     self.data.append({
                         'lang': ConnectorLang.JP,
                         'href': '%s/%s' % (self.base_url, url['href']),
-                        'name': url.decode_contents(),
+                        'name': url.get_text(),
                         'type': tds[1].string,
                         'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                     })
@@ -486,7 +488,7 @@ class AnimeUltime(Connector):
                 self.data.append({
                     'lang': ConnectorLang.JP,
                     'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
-                    'name': self.boldify(name[0].string, self.query),
+                    'name': name[0].string,
                     'type': ani_type[0].string.replace(':', ''),
                     'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                 })

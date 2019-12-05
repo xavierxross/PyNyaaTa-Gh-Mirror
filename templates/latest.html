@@ -31,7 +31,7 @@
                         <i>&nbsp;</i>
                         {{ torrent.lang.value }}
                         <a href="{{ torrent.href }}" target="_blank">
-                            {{ torrent.name }}
+                            {{ torrent.name|boldify|safe }}
                         </a>
                     </td>
                     <td>
@@ -47,7 +47,7 @@
                         <i>&nbsp;</i>
                         {{ torrent.lang.value }}
                         <a href="{{ torrent.href }}" target="_blank">
-                            {{ torrent.name }}
+                            {{ torrent.name|boldify|safe }}
                         </a>
                     </td>
                     <td>

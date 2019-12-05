@@ -12,6 +12,38 @@
         </thead>
         <tbody>
 
+        {% for title in titles %}
+            {% for link in title.links %}
+                <tr>
+                    {% if not loop.index0 %}
+                        <td rowspan="{{ title.links|length }}">
+                            {{ title.name }}
+                        </td>
+                    {% endif %}
+
+                    {% set instance = connector.get_instance(link.link, '') %}
+                    <td class="{{ instance.color }}">
+                        {{ flags.FR.value if link.vf else flags.JP.value }}
+                        <a href="{{ link.link }}" target="_blank">
+                            {{ link.link|shorten }}
+                        </a>
+                    </td>
+
+                    <td>
+                        {{ link.season }}
+                    </td>
+
+                    {% if not loop.index0 %}
+                        <td rowspan="{{ title.links|length }}">
+                            <a href="{{ url_for('search', q=title.keyword) }}" target="_blank">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
+
         </tbody>
     </table>
 {% endblock %}
