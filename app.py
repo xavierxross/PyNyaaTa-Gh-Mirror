@@ -16,7 +16,7 @@ def verify_password(username, password):
 def boldify(name):
     query = request.args.get('q')
     name = Connector.boldify(name, query)
-    for title in AnimeTitle.query.all():
+    for title in ConnectorCache.get_keywords():
         if title.keyword is not query:
             name = Connector.boldify(name, title.keyword)
     return name

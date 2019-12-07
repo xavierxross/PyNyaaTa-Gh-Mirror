@@ -10,7 +10,7 @@ from sys import platform
 import requests
 from bs4 import BeautifulSoup
 
-from models import AnimeLink
+from models import AnimeLink, AnimeTitle
 
 
 class ConnectorReturn(Enum):
@@ -26,6 +26,9 @@ class ConnectorLang(Enum):
 class Cache:
     CACHE_TIMEOUT = 60 * 60
     CACHE_DATA = {}
+    CACHE_KEYWORDS = {
+        'timeout': 0.0
+    }
 
     def cache_data(self, f):
         @wraps(f)
@@ -41,7 +44,7 @@ class Cache:
                 self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query] = {}
             if connector.page not in self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query]:
                 self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
-                    'timeout': 0
+                    'timeout': 0.0
                 }
 
             cached_data = self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page]
@@ -60,6 +63,17 @@ class Cache:
             return ret
 
         return wrapper
+
+    def get_keywords(self):
+        timestamp = datetime.now().timestamp()
+        if self.CACHE_KEYWORDS['timeout'] > timestamp:
+            self.CACHE_KEYWORDS['data'] = AnimeTitle.query.all()
+            self.CACHE_KEYWORDS['timeout'] = timestamp
+
+    def clear_keywords(self):
+        self.CACHE_KEYWORDS = {
+            'timeout': 0.0
+        }
 
 
 ConnectorCache = Cache()
