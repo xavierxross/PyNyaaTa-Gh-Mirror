@@ -1,18 +1,15 @@
 from operator import itemgetter
-from os import environ
 
 from flask import redirect, render_template, url_for, request
 
-from config import app, auth
+from config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, IS_DEBUG, APP_PORT, db
 from connectors import *
 from models import SearchForm, AnimeTitle
 
 
 @auth.verify_password
 def verify_password(username, password):
-    admin_username = environ.get('ADMIN_USERNAME', 'admin')
-    admin_password = environ.get('ADMIN_USERNAME', 'secret')
-    return username is admin_username and password is admin_password
+    return username is ADMIN_USERNAME and password is ADMIN_PASSWORD
 
 
 @app.template_filter('boldify')
@@ -26,8 +23,8 @@ def boldify(name):
 
 
 @app.template_filter('shorten')
-def shorten(str):
-    return str[:30] + '...' if len(str) > 30 else str
+def shorten(str_to_replace):
+    return str_to_replace[:30] + '...' if len(str_to_replace) > 30 else str_to_replace
 
 
 @app.route('/')
@@ -76,11 +73,23 @@ def latest():
 
 @app.route('/list')
 def list_animes():
-    filters = request.args.get('s', 'nyaa,yggtorrent').split(',')
-    titles = AnimeTitle.query.order_by(AnimeTitle.name).all()
+    filters = None
+    for i, to_filter in enumerate(request.args.get('s', 'nyaa,yggtorrent').split(',')):
+        if not i:
+            filters = AnimeLink.link.contains(to_filter)
+        else:
+            filters = filters | AnimeLink.link.contains(to_filter)
 
-    return render_template('list.html', form=SearchForm(), titles=titles, filters=filters, connector=Connector,
-                           flags=ConnectorLang)
+    titles = db.session.query(AnimeTitle, AnimeLink).join(AnimeLink).filter(filters).order_by(AnimeTitle.name).all()
+
+    results = {}
+    for title, link in titles:
+        if title.id not in results:
+            results[title.id] = [link]
+        else:
+            results[title.id].append(link)
+
+    return render_template('list.html', form=SearchForm(), titles=results, connector=Connector, flags=ConnectorLang)
 
 
 @app.route('/admin')
@@ -90,6 +99,4 @@ def admin():
 
 
 if __name__ == '__main__':
-    app_debug = environ.get('FLASK_ENV', 'production') == 'development'
-    app_port = environ.get('FLASK_PORT', 5000)
-    app.run('0.0.0.0', app_port, app_debug)
+    app.run('0.0.0.0', APP_PORT, IS_DEBUG)

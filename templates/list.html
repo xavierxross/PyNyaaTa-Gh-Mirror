@@ -12,12 +12,12 @@
         </thead>
         <tbody>
 
-        {% for title in titles %}
-            {% for link in title.links %}
+        {% for title in titles.values() %}
+            {% for link in title %}
                 <tr>
                     {% if not loop.index0 %}
-                        <td rowspan="{{ title.links|length }}">
-                            {{ title.name }}
+                        <td rowspan="{{ title|length }}">
+                            {{ link.title.name }}
                         </td>
                     {% endif %}
 
@@ -34,8 +34,8 @@
                     </td>
 
                     {% if not loop.index0 %}
-                        <td rowspan="{{ title.links|length }}">
-                            <a href="{{ url_for('search', q=title.keyword) }}" target="_blank">
+                        <td rowspan="{{ title|length }}">
+                            <a href="{{ url_for('search', q=link.title.keyword) }}" target="_blank">
                                 <i class="fa fa-search"></i>
                             </a>
                         </td>
