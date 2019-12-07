@@ -10,7 +10,7 @@ from sys import platform
 import requests
 from bs4 import BeautifulSoup
 
-from models import AnimeLink, AnimeTitle
+from models import AnimeTitle, AnimeLink
 
 
 class ConnectorReturn(Enum):

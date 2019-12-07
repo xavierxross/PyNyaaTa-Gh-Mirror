@@ -1,15 +1,15 @@
 from operator import itemgetter
 
-from flask import redirect, render_template, url_for, request
+from flask import redirect, render_template, request, url_for
 
-from config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, IS_DEBUG, APP_PORT, db
+from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT, IS_DEBUG
 from connectors import *
-from models import SearchForm, AnimeTitle
+from models import SearchForm, AnimeFolder, AnimeTitle
 
 
 @auth.verify_password
 def verify_password(username, password):
-    return username is ADMIN_USERNAME and password is ADMIN_PASSWORD
+    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
 
 
 @app.template_filter('boldify')
@@ -22,9 +22,14 @@ def boldify(name):
     return name
 
 
-@app.template_filter('shorten')
-def shorten(str_to_replace):
-    return str_to_replace[:30] + '...' if len(str_to_replace) > 30 else str_to_replace
+@app.template_filter('flagify')
+def flagify(is_vf):
+    return ConnectorLang.FR.value if is_vf else ConnectorLang.JP.value
+
+
+@app.template_filter('colorify')
+def colorify(model):
+    return Connector.get_instance(model.link, model.title.keyword).color
 
 
 @app.route('/')
@@ -89,13 +94,15 @@ def list_animes():
         else:
             results[title.id].append(link)
 
-    return render_template('list.html', form=SearchForm(), titles=results, connector=Connector, flags=ConnectorLang)
+    return render_template('list.html', form=SearchForm(), titles=results)
 
 
 @app.route('/admin')
 @auth.login_required
 def admin():
-    return 'Hello!'
+    folders = AnimeFolder.query.all()
+
+    return render_template('admin/list.html', form=SearchForm(), folders=folders)
 
 
 if __name__ == '__main__':

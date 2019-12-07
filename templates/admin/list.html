@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block title %} - Admin List{% endblock %}
+{% block body %}
+    <p id="quick_scroll">
+        Quick Scroll :
+        {% for folder in folders %}
+            {% if not loop.index0 %}
+                <a href="#{{ folder.name }}">{{ folder.name }}</a>
+            {% endif %}
+        {% endfor %}
+    </p>
+
+    <table class="table is-bordered is-striped is-narrow is-fullwidth is-hoverable is-size-7">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Link</th>
+            <th>Season</th>
+            <th>Comment</th>
+            <th>Tools</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for folder in folders %}
+            <th colspan="5" id="{{ folder.name }}">{{ folder.name }}</th>
+
+            {% for title in folder.titles %}
+                {% for link in title.links %}
+                    <tr>
+                        {% if not loop.index0 %}
+                            <td rowspan="{{ title.links|length }}">
+                                {{ title.name }}
+                            </td>
+                        {% endif %}
+
+                        <td class="{{ link|colorify }}">
+                            {{ link.vf|flagify }}
+                            {{ link.link|urlize(30, target='_blank') }}
+                        </td>
+
+                        <td>
+                            {{ link.season }}
+                        </td>
+
+                        <td>
+                            {{ link.comment|urlize(target='_blank') }}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for('search', q=link.title.keyword) }}" target="_blank">
+                                <i class="fa fa-search"></i>
+                            </a>
+                            <i>&nbsp;</i>
+                            <a href="EDIT_ID">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            <i>&nbsp;</i>
+                            <a href="DELETE_ID" onclick="return confirm('Are you sure you want to delete this item ?')">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
