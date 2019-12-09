@@ -35,6 +35,10 @@ div.navbar-end {
     white-space: nowrap;
 }
 
+.table td:last-child form {
+    display: inline;
+}
+
 .table td.is-primary, .table tr.is-primary {
     background-color: rgba(0, 209, 178, 0.2) !important;
     border-color: rgba(0, 209, 178, 0.1);
@@ -85,6 +89,13 @@ div.navbar-end {
     height: 12px;
     position: relative;
     top: 2px;
+}
+
+.fa-button {
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
 }
 
 .tooltip.is-tooltip-bottom::before {

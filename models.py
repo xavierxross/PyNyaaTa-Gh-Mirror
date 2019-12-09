@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from wtforms import HiddenField
 from wtforms.fields.html5 import SearchField
 from wtforms.validators import DataRequired
 
@@ -30,6 +31,10 @@ class AnimeLink(db.Model):
 
 class SearchForm(FlaskForm):
     q = SearchField('search', validators=[DataRequired])
+
+
+class DeleteForm(FlaskForm):
+    id = HiddenField('id', validators=[DataRequired])
 
 
 db.create_all()

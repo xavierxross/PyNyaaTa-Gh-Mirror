@@ -52,13 +52,15 @@
                                 <i class="fa fa-search"></i>
                             </a>
                             <i>&nbsp;</i>
-                            <a href="EDIT_ID">
+                            <a href="{{ url_for('admin_edit', id=link.id) }}">
                                 <i class="fa fa-pencil"></i>
                             </a>
                             <i>&nbsp;</i>
-                            <a href="DELETE_ID" onclick="return confirm('Are you sure you want to delete this item ?')">
-                                <i class="fa fa-trash"></i>
-                            </a>
+                            <form method="post" action="{{ url_for('admin_delete') }}">
+                                {{ delete_form.csrf_token }}
+                                {{ delete_form.id(value=link.id) }}
+                                <button class="fa fa-trash fa-button"></button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}

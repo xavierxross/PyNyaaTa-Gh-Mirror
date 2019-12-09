@@ -4,7 +4,7 @@ from flask import redirect, render_template, request, url_for
 
 from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT, IS_DEBUG
 from connectors import *
-from models import SearchForm, AnimeFolder, AnimeTitle
+from models import AnimeFolder, AnimeTitle, DeleteForm, SearchForm
 
 
 @auth.verify_password
@@ -102,7 +102,27 @@ def list_animes():
 def admin():
     folders = AnimeFolder.query.all()
 
-    return render_template('admin/list.html', form=SearchForm(), folders=folders)
+    return render_template('admin/list.html', form=SearchForm(), folders=folders, delete_form=DeleteForm())
+
+
+@app.route('/admin/delete', methods=['POST'])
+@auth.login_required
+def admin_delete():
+    form = DeleteForm()
+    form_id = request.form.id
+    if form.validate_on_submit() and form_id:
+        link = AnimeLink.query.filter_by(id=form_id).first()
+        title = link.title
+        db.session.delete(link)
+        if not len(title.links):
+            db.session.delete(title)
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/edit/<id>')
+@auth.login_required
+def admin_edit(id):
+    return True
 
 
 if __name__ == '__main__':
