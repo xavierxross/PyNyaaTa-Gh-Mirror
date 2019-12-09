@@ -30,11 +30,14 @@ class AnimeLink(db.Model):
 
 
 class SearchForm(FlaskForm):
-    q = SearchField('search', validators=[DataRequired])
+    q = SearchField('search', validators=[DataRequired()])
 
 
 class DeleteForm(FlaskForm):
-    id = HiddenField('id', validators=[DataRequired])
+    class Meta:
+        csrf = False
+
+    id = HiddenField('id', validators=[DataRequired()])
 
 
 db.create_all()

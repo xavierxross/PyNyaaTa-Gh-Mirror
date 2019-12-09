@@ -4,7 +4,7 @@ from flask import redirect, render_template, request, url_for
 
 from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT, IS_DEBUG
 from connectors import *
-from models import AnimeFolder, AnimeTitle, DeleteForm, SearchForm
+from models import AnimeFolder, DeleteForm, SearchForm
 
 
 @auth.verify_password
@@ -108,14 +108,16 @@ def admin():
 @app.route('/admin/delete', methods=['POST'])
 @auth.login_required
 def admin_delete():
-    form = DeleteForm()
-    form_id = request.form.id
-    if form.validate_on_submit() and form_id:
-        link = AnimeLink.query.filter_by(id=form_id).first()
+    form = DeleteForm(request.form)
+    if form.validate_on_submit():
+        link = AnimeLink.query.filter_by(id=form.id.data).first()
         title = link.title
         db.session.delete(link)
         if not len(title.links):
             db.session.delete(title)
+        db.session.commit()
+    else:
+        print(form.errors)
     return redirect(url_for('admin'))
 
 

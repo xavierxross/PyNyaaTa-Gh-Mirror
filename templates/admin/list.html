@@ -57,9 +57,10 @@
                             </a>
                             <i>&nbsp;</i>
                             <form method="post" action="{{ url_for('admin_delete') }}">
-                                {{ delete_form.csrf_token }}
                                 {{ delete_form.id(value=link.id) }}
-                                <button class="fa fa-trash fa-button"></button>
+                                <button class="fa fa-trash fa-button"
+                                        onclick="return confirm('Are you sure you want to delete this item ?')">
+                                </button>
                             </form>
                         </td>
                     </tr>
