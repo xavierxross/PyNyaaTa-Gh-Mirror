@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
-{% block title %} - Admin Edit {{ link.name }}{% endblock %}
+{% block title %} - Admin Add{% endblock %}
 {% block body %}
     <form method="post" action="">
-        {{ edit_form.csrf_token }}
-        {{ edit_form.id(value=link.id) }}
+        {{ add_form.csrf_token }}
+        {{ add_form.id }}
 
         <div class="field is-horizontal">
             <div class="field-body">
                 <div class="field column">
                     <div class="control is-expanded">
                         <div class="select is-fullwidth">
-                            {{ edit_form.folder }}
+                            {{ add_form.folder }}
                         </div>
                     </div>
                 </div>
@@ -18,10 +18,10 @@
                 <div class="field column is-6">
                     <div class="control is-expanded">
                         <div class="select is-fullwidth">
-                            {{ edit_form.name(value=link.title.name, list='animes', class='input', placeholder='Name') }}
+                            {{ add_form.name(list='animes', class='input', placeholder='Name') }}
                             <datalist id="animes">
                                 {% for title in titles %}
-                                    <option {{ 'selected' if title.id == link.title.id }}>
+                                    <option>
                                         {{ title.name }}
                                     </option>
                                 {% endfor %}
@@ -36,13 +36,13 @@
             <div class="field-body">
                 <div class="field column is-4">
                     <div class="control is-expanded">
-                        {{ edit_form.link(value=link.link, class='input', placeholder='Link') }}
+                        {{ add_form.link(class='input', placeholder='Link') }}
                     </div>
                 </div>
 
                 <div class="field column">
                     <div class="control is-expanded">
-                        {{ edit_form.season(value=link.season, class='input', placeholder='Season') }}
+                        {{ add_form.season(class='input', placeholder='Season') }}
                     </div>
                 </div>
             </div>
@@ -52,28 +52,28 @@
             <div class="field-body">
                 <div class="field column is-5">
                     <div class="control is-expanded">
-                        <div class="select is-fullwidth">
-                            {{ edit_form.comment(value=link.comment, class='input', placeholder='Comment') }}
-                        </div>
+                        {{ add_form.comment(class='input', placeholder='Comment') }}
                     </div>
                 </div>
 
                 <div class="field column">
                     <div class="control is-expanded">
-                        {{ edit_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
-                        <datalist id="keywords">
-                            {% for title in titles %}
-                                <option {{ 'selected' if title.keyword == link.title.keyword }}>
-                                    {{ title.keyword }}
-                                </option>
-                            {% endfor %}
-                        </datalist>
+                        <div class="select is-fullwidth">
+                            {{ add_form.keyword(list='keywords', class='input', placeholder='Keyword') }}
+                            <datalist id="keywords">
+                                {% for title in titles %}
+                                    <option>
+                                        {{ title.keyword }}
+                                    </option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
                     </div>
                 </div>
 
                 <label class="checkbox">
                     <b>{{ true|flagify }}</b>
-                    {{ edit_form.is_vf(value=link.vf) }}
+                    {{ add_form.is_vf }}
                 </label>
             </div>
         </div>

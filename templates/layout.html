@@ -46,7 +46,7 @@
         <form action="{{ url_for('search') }}" class="navbar-item">
             <div class="field has-addons">
                 <div class="control">
-                    {{ form.q(placeholder='Search ...', class='input') }}
+                    {{ search_form.q(placeholder='Search ...', class='input') }}
                 </div>
                 <div class="control">
                     <button type="submit" class="button is-info">

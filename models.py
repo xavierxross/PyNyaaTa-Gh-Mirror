@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import HiddenField
-from wtforms.fields.html5 import SearchField
+from wtforms import BooleanField, HiddenField, SelectField, StringField
+from wtforms.fields.html5 import SearchField, URLField
 from wtforms.validators import DataRequired
 
 from config import db
@@ -38,6 +38,17 @@ class DeleteForm(FlaskForm):
         csrf = False
 
     id = HiddenField('id', validators=[DataRequired()])
+
+
+class EditForm(FlaskForm):
+    id = HiddenField('id', validators=[DataRequired()])
+    folder = SelectField('folder', validators=[DataRequired()])
+    name = StringField('name', validators=[DataRequired()])
+    link = URLField('link', validators=[DataRequired()])
+    season = StringField('season', validators=[DataRequired()])
+    comment = StringField('comment')
+    keyword = StringField('keyword')
+    is_vf = BooleanField('is_vf')
 
 
 db.create_all()

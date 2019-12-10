@@ -4,7 +4,7 @@ from flask import redirect, render_template, request, url_for
 
 from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT, IS_DEBUG
 from connectors import *
-from models import AnimeFolder, DeleteForm, SearchForm
+from models import AnimeFolder, DeleteForm, SearchForm, EditForm
 
 
 @auth.verify_password
@@ -34,7 +34,7 @@ def colorify(model):
 
 @app.route('/')
 def home():
-    return render_template('layout.html', form=SearchForm())
+    return render_template('layout.html', search_form=SearchForm())
 
 
 @app.route('/search')
@@ -51,7 +51,7 @@ def search():
         AnimeUltime(query).run(),
     ]
 
-    return render_template('search.html', form=SearchForm(), connectors=results)
+    return render_template('search.html', search_form=SearchForm(), connectors=results)
 
 
 @app.route('/latest')
@@ -73,7 +73,7 @@ def latest():
         result['self'] = Connector.get_instance(result['href'], '')
     results.sort(key=itemgetter('date'), reverse=True)
 
-    return render_template('latest.html', form=SearchForm(), torrents=results, page=page)
+    return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page)
 
 
 @app.route('/list')
@@ -94,7 +94,7 @@ def list_animes():
         else:
             results[title.id].append(link)
 
-    return render_template('list.html', form=SearchForm(), titles=results)
+    return render_template('list.html', search_form=SearchForm(), titles=results)
 
 
 @app.route('/admin')
@@ -102,7 +102,7 @@ def list_animes():
 def admin():
     folders = AnimeFolder.query.all()
 
-    return render_template('admin/list.html', form=SearchForm(), folders=folders, delete_form=DeleteForm())
+    return render_template('admin/list.html', search_form=SearchForm(), folders=folders, delete_form=DeleteForm())
 
 
 @app.route('/admin/delete', methods=['POST'])
@@ -121,10 +121,25 @@ def admin_delete():
     return redirect(url_for('admin'))
 
 
-@app.route('/admin/edit/<id>')
+@app.route('/admin/edit/<link_id>')
 @auth.login_required
-def admin_edit(id):
-    return True
+def admin_edit(link_id):
+    link = AnimeLink.query.filter_by(id=link_id).first()
+    edit_form = EditForm()
+    edit_form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
+    titles = AnimeTitle.query.all()
+
+    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=edit_form)
+
+
+@app.route('/admin/add')
+@auth.login_required
+def admin_add():
+    add_form = EditForm()
+    add_form.folder.choices = [('', '')] + [(query.id, query.name) for query in AnimeFolder.query.all()]
+    titles = AnimeTitle.query.all()
+
+    return render_template('admin/add.html', search_form=SearchForm(), titles=titles, add_form=add_form)
 
 
 if __name__ == '__main__':
