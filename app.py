@@ -4,7 +4,7 @@ from flask import redirect, render_template, request, url_for
 
 from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT, IS_DEBUG
 from connectors import *
-from models import AnimeFolder, DeleteForm, SearchForm, EditForm
+from models import AnimeFolder, AnimeTitle, DeleteForm, SearchForm, EditForm
 
 
 @auth.verify_password
@@ -16,7 +16,7 @@ def verify_password(username, password):
 def boldify(name):
     query = request.args.get('q')
     name = Connector.boldify(name, query)
-    for title in ConnectorCache.get_keywords():
+    for title in AnimeTitle.query.all():
         if title.keyword is not query:
             name = Connector.boldify(name, title.keyword)
     return name
