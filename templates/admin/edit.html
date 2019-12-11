@@ -29,8 +29,7 @@
 
                             <script>
                                 document.getElementById('name').oninput = function (choice) {
-                                    var datalist = document.getElementById('animes').childNodes;
-                                    datalist.forEach(function (option) {
+                                    document.getElementById('animes').childNodes.forEach(function (option) {
                                         if (option.value === choice.target.value) {
                                             document.getElementById('folder').value = option.dataset.folderId;
                                             document.getElementById('keyword').value = option.dataset.keyword;
