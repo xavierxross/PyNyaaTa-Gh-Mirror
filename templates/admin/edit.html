@@ -52,22 +52,22 @@
             <div class="field-body">
                 <div class="field column is-5">
                     <div class="control is-expanded">
-                        <div class="select is-fullwidth">
-                            {{ edit_form.comment(value=link.comment, class='input', placeholder='Comment') }}
-                        </div>
+                        {{ edit_form.comment(value=link.comment, class='input', placeholder='Comment') }}
                     </div>
                 </div>
 
                 <div class="field column">
                     <div class="control is-expanded">
-                        {{ edit_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
-                        <datalist id="keywords">
-                            {% for title in titles %}
-                                <option {{ 'selected' if title.keyword == link.title.keyword }}>
-                                    {{ title.keyword }}
-                                </option>
-                            {% endfor %}
-                        </datalist>
+                        <div class="select is-fullwidth">
+                            {{ edit_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
+                            <datalist id="keywords">
+                                {% for title in titles %}
+                                    <option {{ 'selected' if title.keyword == link.title.keyword }}>
+                                        {{ title.keyword }}
+                                    </option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
                     </div>
                 </div>
 

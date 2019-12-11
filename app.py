@@ -135,11 +135,18 @@ def admin_edit(link_id):
 @app.route('/admin/add')
 @auth.login_required
 def admin_add():
-    add_form = EditForm()
-    add_form.folder.choices = [('', '')] + [(query.id, query.name) for query in AnimeFolder.query.all()]
+    edit_form = EditForm()
+    edit_form.folder.choices = [('', '')] + [(query.id, query.name) for query in AnimeFolder.query.all()]
     titles = AnimeTitle.query.all()
+    link = AnimeLink()
+    for attr in dir(link):
+        if not attr.startswith('_'):
+            try:
+                setattr(link, attr, '')
+            except:
+                pass
 
-    return render_template('admin/add.html', search_form=SearchForm(), titles=titles, add_form=add_form)
+    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=edit_form)
 
 
 @app.route('/admin/save', methods=['POST'])
