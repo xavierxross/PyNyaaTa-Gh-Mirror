@@ -66,9 +66,10 @@ class Cache:
 
     def get_keywords(self):
         timestamp = datetime.now().timestamp()
-        if self.CACHE_KEYWORDS['timeout'] > timestamp:
+        if self.CACHE_KEYWORDS['timeout'] < timestamp:
             self.CACHE_KEYWORDS['data'] = AnimeTitle.query.all()
             self.CACHE_KEYWORDS['timeout'] = timestamp
+        return self.CACHE_KEYWORDS['data']
 
     def clear_keywords(self):
         self.CACHE_KEYWORDS = {

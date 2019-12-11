@@ -4,7 +4,7 @@
     <p id="quick_scroll">
         Quick Scroll :
         {% for folder in folders %}
-            {% if not loop.index0 %}
+            {% if loop.index0 %}
                 <a href="#{{ folder.name }}">{{ folder.name }}</a>
             {% endif %}
         {% endfor %}
@@ -52,7 +52,7 @@
                                 <i class="fa fa-search"></i>
                             </a>
                             <i>&nbsp;</i>
-                            <a href="{{ url_for('admin_edit', id=link.id) }}">
+                            <a href="{{ url_for('admin_edit', link_id=link.id) }}">
                                 <i class="fa fa-pencil"></i>
                             </a>
                             <i>&nbsp;</i>
