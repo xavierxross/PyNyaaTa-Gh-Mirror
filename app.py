@@ -142,5 +142,29 @@ def admin_add():
     return render_template('admin/add.html', search_form=SearchForm(), titles=titles, add_form=add_form)
 
 
+@app.route('/admin/save', methods=['POST'])
+@auth.login_required
+def admin_save():
+    form = EditForm(request.form)
+    if form.validate_on_submit():
+        folder = AnimeFolder.query.filter_by(id=form.folder)
+        title = AnimeTitle.query.filter_by(name=form.name).first()
+        title.folder = folder
+        title.name = form.name
+        title.keyword = form.keyword.lower() if form.keyword else title.keyword
+        db.session.add(title)
+        link = AnimeLink.query.filter_by(id=form.id)
+        link.title = title
+        link.link = form.link
+        link.season = form.season
+        link.comment = form.comment
+        link.vf = form.is_vf
+        db.session.add(link)
+        db.session.commit()
+    else:
+        print(form.errors)
+    return redirect(url_for('admin'))
+
+
 if __name__ == '__main__':
     app.run('0.0.0.0', APP_PORT, IS_DEBUG)

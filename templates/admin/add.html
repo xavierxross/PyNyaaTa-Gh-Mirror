@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %} - Admin Add{% endblock %}
 {% block body %}
-    <form method="post" action="">
+    <form method="post" action="{{ url_for('admin_save') }}">
         {{ add_form.csrf_token }}
         {{ add_form.id }}
 
