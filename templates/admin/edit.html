@@ -21,11 +21,23 @@
                             {{ edit_form.name(value=link.title.name, list='animes', class='input', placeholder='Name') }}
                             <datalist id="animes">
                                 {% for title in titles %}
-                                    <option {{ 'selected' if title.id == link.title.id }}>
-                                        {{ title.name }}
-                                    </option>
+                                    <option {{ 'selected' if title.id == link.title.id }}
+                                            data-folder-id="{{ title.folder.id }}" value="{{ title.name }}"
+                                            data-keyword="{{ title.keyword }}">
                                 {% endfor %}
                             </datalist>
+
+                            <script>
+                                document.getElementById('name').oninput = function (choice) {
+                                    var datalist = document.getElementById('animes').childNodes;
+                                    datalist.forEach(function (option) {
+                                        if (option.value === choice.target.value) {
+                                            document.getElementById('folder').value = option.dataset.folderId;
+                                            document.getElementById('keyword').value = option.dataset.keyword;
+                                        }
+                                    });
+                                };
+                            </script>
                         </div>
                     </div>
                 </div>
@@ -62,9 +74,8 @@
                             {{ edit_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
                             <datalist id="keywords">
                                 {% for title in titles %}
-                                    <option {{ 'selected' if title.keyword == link.title.keyword }}>
-                                        {{ title.keyword }}
-                                    </option>
+                                    <option {{ 'selected' if title.keyword == link.title.keyword }}
+                                            value="{{ title.keyword }}">
                                 {% endfor %}
                             </datalist>
                         </div>

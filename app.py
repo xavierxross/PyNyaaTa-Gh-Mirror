@@ -140,7 +140,7 @@ def admin_add():
     titles = AnimeTitle.query.all()
     link = AnimeLink()
     for attr in dir(link):
-        if not attr.startswith('_'):
+        if not attr.startswith('_') and getattr(link, attr) is None:
             try:
                 setattr(link, attr, '')
             except:
@@ -154,7 +154,7 @@ def admin_add():
 def admin_save():
     form = EditForm(request.form)
     if form.validate_on_submit():
-        folder = AnimeFolder.query.filter_by(id=form.folder)
+        folder = AnimeFolder.query.filter_by(id=form.folder).first()
         title = AnimeTitle.query.filter_by(name=form.name).first()
         title.folder = folder
         title.name = form.name
