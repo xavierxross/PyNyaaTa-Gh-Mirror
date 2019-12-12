@@ -23,17 +23,17 @@
 
         {% for torrent in torrents %}
             <tr class="{{ torrent.class }}">
+                <td colspan="{{ '3' if torrent.self.is_light else '' }}">
+                    <img class="favicon"
+                         src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
+                    <i>&nbsp;</i>
+                    {{ torrent.lang.value }}
+                    <a href="{{ torrent.href }}" target="_blank">
+                        {{ torrent.name|boldify|safe }}
+                    </a>
+                </td>
 
                 {% if torrent.self.is_light %}
-                    <td colspan="3">
-                        <img class="favicon"
-                             src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
-                        <i>&nbsp;</i>
-                        {{ torrent.lang.value }}
-                        <a href="{{ torrent.href }}" target="_blank">
-                            {{ torrent.name|boldify|safe }}
-                        </a>
-                    </td>
                     <td>
                         {{ torrent.date }}
                     </td>
@@ -41,15 +41,6 @@
                         {{ torrent.type }}
                     </td>
                 {% else %}
-                    <td>
-                        <img class="favicon"
-                             src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
-                        <i>&nbsp;</i>
-                        {{ torrent.lang.value }}
-                        <a href="{{ torrent.href }}" target="_blank">
-                            {{ torrent.name|boldify|safe }}
-                        </a>
-                    </td>
                     <td>
                         {{ torrent.link|safe }}
                         {{ torrent.comment|safe }}
