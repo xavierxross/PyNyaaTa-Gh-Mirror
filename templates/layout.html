@@ -26,6 +26,7 @@
            href="{{ url_for('list_animes') }}">
             <i class="fa fa-cloud-download"></i><i>&nbsp;</i><span class="is-hidden-mobile">My seeded torrents</span>
         </a>
+        {% block add_button %}{% endblock %}
         {% if request.args.get('q') %}
             <a class="navbar-item tooltip has-tooltip-bottom" data-tooltip="TVDB"
                href="https://www.thetvdb.com/search?menu%5Btype%5D=TV&query={{ request.args.get('q') }}"

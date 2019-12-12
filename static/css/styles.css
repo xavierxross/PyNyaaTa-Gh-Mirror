@@ -15,8 +15,30 @@ a.navbar-item:hover {
     background-color: #292929;
 }
 
+div.navbar-end {
+    flex-basis: min-content;
+}
+
 th.error {
     color: red;
+}
+
+img.favicon {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
+}
+
+button.fa-button {
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+label.checkbox {
+    margin: 1.2rem 1.2rem 0;
 }
 
 .hidden {
@@ -67,25 +89,13 @@ th.error {
     white-space: nowrap;
 }
 
-.checkbox {
-    margin: 1.2rem 1.2rem 0;
-}
-
 #quick_scroll {
     float: right;
     margin-top: -2rem;
 }
 
-.favicon {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    top: 2px;
-}
-
-.fa-button {
-    padding: 0;
-    cursor: pointer;
-    background: none;
-    border: none;
+@media screen and (min-width: 1088px) {
+    .tooltip:hover::before, .tooltip:hover::after {
+        display: none !important;
+    }
 }
