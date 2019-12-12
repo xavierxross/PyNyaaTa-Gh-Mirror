@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %} - Admin Edit {{ link.name }}{% endblock %}
+{% block title %}Admin Edit for "{{ link.name }}"{% endblock %}
 {% block body %}
     <form method="post" action="{{ url_for('admin_save') }}">
         {{ edit_form.csrf_token }}

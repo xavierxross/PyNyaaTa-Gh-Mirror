@@ -34,7 +34,7 @@ def colorify(model):
 
 @app.route('/')
 def home():
-    return render_template('layout.html', search_form=SearchForm())
+    return render_template('layout.html', search_form=SearchForm(), title='Animes torrents search engine')
 
 
 @app.route('/search')
