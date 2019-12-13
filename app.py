@@ -153,6 +153,7 @@ def admin_add():
 @auth.login_required
 def admin_save():
     form = EditForm(request.form)
+    form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
     if form.validate_on_submit():
         title = AnimeTitle.query.filter_by(name=form.name.data).first()
         title = title if title else AnimeTitle()
