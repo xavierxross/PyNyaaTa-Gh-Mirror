@@ -130,7 +130,7 @@ class Connector(ABC):
     def curl_content(self, url, params=None, ajax=False):
         if self.is_behind_cloudflare:
             try:
-                qt_env = {'QT_QPA_PLATFORM': 'offscreen'} if platform is 'linux' else {}
+                qt_env = {'QT_QPA_PLATFORM': 'offscreen'} if platform == 'linux' else {}
                 qt_output = run('phantomjs --cookies-file=/tmp/cookies.json delay.js "%s" 5000' % url, env=qt_env,
                                 shell=True, check=True, capture_output=True, timeout=7000)
                 output = qt_output.stdout
