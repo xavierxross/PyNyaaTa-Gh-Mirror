@@ -3,10 +3,12 @@ from sys import modules
 
 import pymysql
 from flask import Flask
+from flask.cli import load_dotenv
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
 
 modules["MySQLdb"] = pymysql
+load_dotenv()
 
 # init DB and migration
 db_user = environ.get('MYSQL_USER')
