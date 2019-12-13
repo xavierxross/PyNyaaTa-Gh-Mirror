@@ -13,6 +13,7 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 - Install Docker: https://hub.docker.com/search/?type=edition&offering=community
 - Clone this repository
 - Launch a terminal and move into the root of the cloned repository
+- Run `docker-compose build`
 - Run `docker-compose up -d`
 - The app is accessible at http://localhost:5000
 
