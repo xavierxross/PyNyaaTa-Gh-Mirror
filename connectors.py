@@ -49,6 +49,7 @@ class Cache:
             if cached_data['timeout'] > timestamp:
                 connector.data = cached_data['data']
                 connector.is_more = cached_data['is_more']
+                connector.on_error = False
                 return
 
             ret = f(*args, **kwds)
@@ -157,17 +158,6 @@ class Connector(ABC):
         return {'http_code': http_code, 'output': output}
 
     @staticmethod
-    def abord_on_success(f):
-        @wraps(f)
-        def wrapper(*args, **kwds):
-            connector = args[0]
-            if not connector.on_error:
-                return
-            return f(*args, **kwds)
-
-        return wrapper
-
-    @staticmethod
     def get_instance(url, query):
         if 'nyaa.si' in url:
             return Nyaa(query)
@@ -215,7 +205,6 @@ class Nyaa(Connector):
         self.search()
 
     @ConnectorCache.cache_data
-    @Connector.abord_on_success
     def search(self):
         response = self.curl_content(self.get_full_search_url())
 
@@ -289,7 +278,6 @@ class Pantsu(Connector):
         self.search()
 
     @ConnectorCache.cache_data
-    @Connector.abord_on_success
     def search(self):
         response = self.curl_content(self.get_full_search_url())
 
@@ -374,7 +362,6 @@ class YggTorrent(Connector):
         self.search()
 
     @ConnectorCache.cache_data
-    @Connector.abord_on_success
     def search(self):
         if self.category:
             response = self.curl_content(self.get_full_search_url())
@@ -451,7 +438,6 @@ class AnimeUltime(Connector):
         return '%s/%s-0-1/%s' % (self.base_url, sort_type, from_date)
 
     @ConnectorCache.cache_data
-    @Connector.abord_on_success
     def search(self):
         response = self.curl_content(self.get_full_search_url(), {'search': self.query})
 
@@ -498,7 +484,6 @@ class AnimeUltime(Connector):
             self.on_error = False
 
     @ConnectorCache.cache_data
-    @Connector.abord_on_success
     def get_history(self):
         response = self.curl_content(self.get_full_search_url())
 
