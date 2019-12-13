@@ -2,7 +2,7 @@ from operator import itemgetter
 
 from flask import redirect, render_template, request, url_for
 
-from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT, IS_DEBUG
+from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT
 from connectors import *
 from models import AnimeFolder, AnimeTitle, DeleteForm, SearchForm, EditForm
 

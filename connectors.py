@@ -10,6 +10,7 @@ from sys import platform
 import requests
 from bs4 import BeautifulSoup
 
+from config import IS_DEBUG
 from models import AnimeLink
 
 
@@ -137,7 +138,8 @@ class Connector(ABC):
             except Exception as e:
                 output = ''
                 http_code = 500
-                print(e)
+                if IS_DEBUG:
+                    print(e)
         else:
             if ajax:
                 headers = {'X-Requested-With': 'XMLHttpRequest'}
