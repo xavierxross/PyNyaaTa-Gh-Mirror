@@ -126,15 +126,17 @@ def admin_delete():
 def admin_edit(link_id):
     link = AnimeLink.query.filter_by(id=link_id).first()
     titles = AnimeTitle.query.all()
+    edit_form = EditForm()
+    edit_form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
 
-    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=EditForm())
+    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=edit_form)
 
 
 @app.route('/admin/add')
 @auth.login_required
 def admin_add():
     edit_form = EditForm()
-    edit_form.folder.choices = [(0, '')] + edit_form.folder.choices
+    edit_form.folder.choices = [(0, '')] + [(query.id, query.name) for query in AnimeFolder.query.all()]
     titles = AnimeTitle.query.all()
     link = AnimeLink()
     for attr in dir(link):
