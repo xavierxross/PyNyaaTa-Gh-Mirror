@@ -41,8 +41,9 @@ class DeleteForm(FlaskForm):
 
 
 class EditForm(FlaskForm):
-    id = HiddenField('id', validators=[DataRequired()])
-    folder = SelectField('folder', validators=[DataRequired()])
+    id = HiddenField('id')
+    folder = SelectField('folder', validators=[DataRequired()],
+                         choices=[(query.id, query.name) for query in AnimeFolder.query.all()], coerce=int)
     name = StringField('name', validators=[DataRequired()])
     link = URLField('link', validators=[DataRequired()])
     season = StringField('season', validators=[DataRequired()])

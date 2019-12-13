@@ -125,18 +125,16 @@ def admin_delete():
 @auth.login_required
 def admin_edit(link_id):
     link = AnimeLink.query.filter_by(id=link_id).first()
-    edit_form = EditForm()
-    edit_form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
     titles = AnimeTitle.query.all()
 
-    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=edit_form)
+    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=EditForm())
 
 
 @app.route('/admin/add')
 @auth.login_required
 def admin_add():
     edit_form = EditForm()
-    edit_form.folder.choices = [('', '')] + [(query.id, query.name) for query in AnimeFolder.query.all()]
+    edit_form.folder.choices = [(0, '')] + edit_form.folder.choices
     titles = AnimeTitle.query.all()
     link = AnimeLink()
     for attr in dir(link):
@@ -154,18 +152,19 @@ def admin_add():
 def admin_save():
     form = EditForm(request.form)
     if form.validate_on_submit():
-        folder = AnimeFolder.query.filter_by(id=form.folder).first()
-        title = AnimeTitle.query.filter_by(name=form.name).first()
-        title.folder = folder
-        title.name = form.name
-        title.keyword = form.keyword.lower() if form.keyword else title.keyword
+        title = AnimeTitle.query.filter_by(name=form.name.data).first()
+        title = title if title else AnimeTitle()
+        title.folder_id = form.folder.data
+        title.name = form.name.data
+        title.keyword = form.keyword.data.lower() if form.keyword.data else title.keyword
         db.session.add(title)
-        link = AnimeLink.query.filter_by(id=form.id)
-        link.title = title
-        link.link = form.link
-        link.season = form.season
-        link.comment = form.comment
-        link.vf = form.is_vf
+        link = AnimeLink.query.filter_by(id=form.id.data).first()
+        link = link if link else AnimeLink()
+        link.title_id = title.id
+        link.link = form.link.data
+        link.season = form.season.data
+        link.comment = form.comment.data
+        link.vf = form.is_vf.data
         db.session.add(link)
         db.session.commit()
     else:
