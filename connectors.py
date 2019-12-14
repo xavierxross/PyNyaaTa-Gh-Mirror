@@ -392,7 +392,7 @@ class YggTorrent(Connector):
                             'href': url['href'],
                             'name': url.string,
                             'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
-                                       (url['href'], tds[3].string),
+                                       (url['href'], tds[3].decode_contents()),
                             'link': '<a href="%s/engine/download_torrent?id=%s">'
                                     '<i class="fa fa-fw fa-download"></i>'
                                     '</a>' % (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
