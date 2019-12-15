@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 {% block title %}Admin Edit {{ link.name }}{% endblock %}
 {% block body %}
-    <form method="post" action="{{ url_for('admin_save') }}">
-        {{ edit_form.csrf_token }}
-        {{ edit_form.id(value=link.id) }}
+    <form method="post">
+        {{ action_form.csrf_token }}
+        {{ action_form.id(value=link.id) }}
 
         <div class="field is-horizontal">
             <div class="field-body">
                 <div class="field column">
                     <div class="control is-expanded">
                         <div class="select is-fullwidth">
-                            {{ edit_form.folder }}
+                            {{ action_form.folder }}
                         </div>
                     </div>
                 </div>
@@ -18,7 +18,7 @@
                 <div class="field column is-6">
                     <div class="control is-expanded">
                         <div class="select is-fullwidth">
-                            {{ edit_form.name(value=link.title.name, list='animes', class='input', placeholder='Name') }}
+                            {{ action_form.name(value=link.title.name, list='animes', class='input', placeholder='Name') }}
                             <datalist id="animes">
                                 {% for title in titles %}
                                     <option {{ 'selected' if title.id == link.title.id }}
@@ -47,13 +47,13 @@
             <div class="field-body">
                 <div class="field column is-4">
                     <div class="control is-expanded">
-                        {{ edit_form.link(value=link.link, class='input', placeholder='Link') }}
+                        {{ action_form.link(value=link.link, class='input', placeholder='Link') }}
                     </div>
                 </div>
 
                 <div class="field column">
                     <div class="control is-expanded">
-                        {{ edit_form.season(value=link.season, class='input', placeholder='Season') }}
+                        {{ action_form.season(value=link.season, class='input', placeholder='Season') }}
                     </div>
                 </div>
             </div>
@@ -63,14 +63,14 @@
             <div class="field-body">
                 <div class="field column is-5">
                     <div class="control is-expanded">
-                        {{ edit_form.comment(value=link.comment, class='input', placeholder='Comment') }}
+                        {{ action_form.comment(value=link.comment, class='input', placeholder='Comment') }}
                     </div>
                 </div>
 
                 <div class="field column">
                     <div class="control is-expanded">
                         <div class="select is-fullwidth">
-                            {{ edit_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
+                            {{ action_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
                             <datalist id="keywords">
                                 {% for title in titles %}
                                     <option {{ 'selected' if title.keyword == link.title.keyword }}
@@ -83,7 +83,7 @@
 
                 <label class="checkbox">
                     <b>{{ true|flagify }}</b>
-                    {{ edit_form.is_vf(value=link.vf) }}
+                    {{ action_form.is_vf(value=link.vf) }}
                 </label>
             </div>
         </div>

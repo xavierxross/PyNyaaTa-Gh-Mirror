@@ -97,63 +97,35 @@ def list_animes():
     return render_template('list.html', search_form=SearchForm(), titles=results)
 
 
-@app.route('/admin')
+@app.route('/admin', methods=['GET', 'POST'])
 @auth.login_required
 def admin():
     folders = AnimeFolder.query.all()
-
-    return render_template('admin/list.html', search_form=SearchForm(), folders=folders, delete_form=DeleteForm())
-
-
-@app.route('/admin/delete', methods=['POST'])
-@auth.login_required
-def admin_delete():
     form = DeleteForm(request.form)
+
     if form.validate_on_submit():
         link = AnimeLink.query.filter_by(id=form.id.data).first()
-        title = link.title
-        db.session.delete(link)
-        if not len(title.links):
-            db.session.delete(title)
-        db.session.commit()
-    else:
-        print(form.errors)
-    return redirect(url_for('admin'))
+        if link:
+            title = link.title
+            db.session.delete(link)
+            if not len(title.links):
+                db.session.delete(title)
+            db.session.commit()
+            form.message = '%s (%s) has been successfully deleted' % (title, link.season)
+        else:
+            form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
+
+    return render_template('admin/list.html', search_form=SearchForm(), folders=folders, action_form=form)
 
 
-@app.route('/admin/edit/<link_id>')
+@app.route('/admin/edit', methods=['GET', 'POST'])
+@app.route('/admin/edit/<int:link_id>', methods=['GET', 'POST'])
 @auth.login_required
-def admin_edit(link_id):
-    link = AnimeLink.query.filter_by(id=link_id).first()
+def admin_edit(link_id=None):
     titles = AnimeTitle.query.all()
-    edit_form = EditForm()
-    edit_form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
-
-    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=edit_form)
-
-
-@app.route('/admin/add')
-@auth.login_required
-def admin_add():
-    edit_form = EditForm()
-    edit_form.folder.choices = [(0, '')] + [(query.id, query.name) for query in AnimeFolder.query.all()]
-    titles = AnimeTitle.query.all()
-    link = AnimeLink()
-    for attr in dir(link):
-        if not attr.startswith('_') and getattr(link, attr) is None:
-            try:
-                setattr(link, attr, '')
-            except:
-                pass
-
-    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, edit_form=edit_form)
-
-
-@app.route('/admin/save', methods=['POST'])
-@auth.login_required
-def admin_save():
     form = EditForm(request.form)
     form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
+
     if form.validate_on_submit():
         title = AnimeTitle.query.filter_by(name=form.name.data).first()
         title = title if title else AnimeTitle()
@@ -170,9 +142,21 @@ def admin_save():
         link.vf = form.is_vf.data
         db.session.add(link)
         db.session.commit()
+        return redirect(url_for('admin'))
+
+    if link_id:
+        link = AnimeLink.query.filter_by(id=link_id).first()
     else:
-        print(form.errors)
-    return redirect(url_for('admin'))
+        link = AnimeLink()
+        for attr in dir(link):
+            if not attr.startswith('_') and getattr(link, attr) is None:
+                try:
+                    setattr(link, attr, '')
+                except:
+                    pass
+        form.folder.choices = [(0, '')] + form.folder.choices
+
+    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, action_form=form)
 
 
 if __name__ == '__main__':

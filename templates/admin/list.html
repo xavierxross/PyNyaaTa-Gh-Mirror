@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Admin List{% endblock %}
 {% block add_button %}
-    <a class="navbar-item tooltip has-tooltip-bottom" data-tooltip="Add entry" href="{{ url_for('admin_add') }}">
+    <a class="navbar-item tooltip has-tooltip-bottom" data-tooltip="Add entry" href="{{ url_for('admin_edit') }}">
         <i class="fa fa-plus"></i><i>&nbsp;</i><span class="is-hidden-mobile">Add entry</span>
     </a>
 {% endblock %}
@@ -61,8 +61,8 @@
                                 <i class="fa fa-pencil"></i>
                             </a>
                             <i>&nbsp;</i>
-                            <form method="post" action="{{ url_for('admin_delete') }}">
-                                {{ delete_form.id(value=link.id) }}
+                            <form method="post">
+                                {{ action_form.id(value=link.id) }}
                                 <button class="fa fa-trash fa-button"
                                         onclick="return confirm('Are you sure you want to delete this item ?')">
                                 </button>

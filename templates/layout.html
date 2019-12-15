@@ -60,6 +60,27 @@
 </nav>
 
 <section class="section" role="main">
+    {% if action_form %}
+        {% if action_form.errors %}
+            <div class="notification is-danger">
+                <button class="delete"></button>
+                <ul>
+                    {% for field in action_form.errors %}
+                        {% for error in action_form.errors[field] %}
+                            <li>"{{ field }}" => {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if action_form.message %}
+            <div class="notification is-success">
+                <button class="delete"></button>
+                {{ action_form.message }}
+            </div>
+        {% endif %}
+    {% endif %}
+
     {% block body %}{% endblock %}
 </section>
 
