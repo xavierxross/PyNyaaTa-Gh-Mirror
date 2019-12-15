@@ -402,7 +402,9 @@ class YggTorrent(Connector):
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
-                            'class': self.color if AnimeLink.query.filter_by(link=quote(url['href'])).first() else ''
+                            'class': self.color if AnimeLink.query.filter_by(
+                                link=quote(url['href'], '/+:')
+                            ).first() else ''
                         })
 
                 self.on_error = False
