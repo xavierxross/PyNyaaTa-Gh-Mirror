@@ -1,16 +1,12 @@
 from os import environ, urandom
-from sys import modules
 
-import pymysql
 from flask import Flask
 from flask.cli import load_dotenv
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
 
-modules["MySQLdb"] = pymysql
-load_dotenv()
-
 # init DB and migration
+load_dotenv()
 db_user = environ.get('MYSQL_USER')
 db_password = environ.get('MYSQL_PASSWORD')
 db_name = environ.get('MYSQL_DATABASE')
@@ -27,7 +23,9 @@ APP_PORT = environ.get('FLASK_PORT', 5000)
 
 app = Flask(__name__)
 app.secret_key = urandom(24).hex()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (db_user, db_password, db_host, db_name)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
+    db_user, db_password, db_host, db_name
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
 auth = HTTPBasicAuth()
