@@ -27,7 +27,7 @@ APP_PORT = environ.get('FLASK_PORT', 5000)
 
 app = Flask(__name__)
 app.secret_key = urandom(24).hex()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s/%s' % (db_user, db_password, db_host, db_name)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (db_user, db_password, db_host, db_name)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
 auth = HTTPBasicAuth()
