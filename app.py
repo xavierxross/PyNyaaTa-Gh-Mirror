@@ -17,7 +17,7 @@ def boldify(name):
     query = request.args.get('q')
     name = Connector.boldify(name, query)
     for title in AnimeTitle.query.all():
-        if title.keyword is not query:
+        if title.keyword != query:
             name = Connector.boldify(name, title.keyword)
     return name
 
