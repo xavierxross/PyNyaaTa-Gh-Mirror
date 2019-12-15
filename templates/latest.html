@@ -70,11 +70,11 @@
 
     <nav class="pagination is-right" role="navigation" aria-label="pagination">
         {% if page > 1 %}
-            <a class="pagination-previous" href="{{ url_for('latest', q=request.args.get('q'), page=(page - 1)) }}">
+            <a class="pagination-previous" href="{{ url_for('latest', page=(page - 1)) }}">
                 Previous
             </a>
         {% endif %}
-        <a class="pagination-next" href="{{ url_for('latest', q=request.args.get('q'), page=(page + 1)) }}">
+        <a class="pagination-next" href="{{ url_for('latest', page=(page + 1)) }}">
             Next page
         </a>
         <ul class="pagination-list"></ul>

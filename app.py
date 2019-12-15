@@ -55,9 +55,8 @@ def search():
 
 
 @app.route('/latest')
-def latest():
-    page = request.args.get('page', 1)
-
+@app.route('/latest/<int:page>')
+def latest(page=1):
     torrents = [
         Nyaa('', return_type=ConnectorReturn.HISTORY, page=page).run(),
         Pantsu('', return_type=ConnectorReturn.HISTORY, page=page).run(),
