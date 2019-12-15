@@ -6,6 +6,7 @@ from enum import Enum
 from functools import wraps
 from subprocess import run
 from sys import platform
+from urllib.parse import quote
 
 import requests
 from bs4 import BeautifulSoup
@@ -332,8 +333,8 @@ class Pantsu(Connector):
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
-                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
-                                                                                                 tr['class'][0]
+                        'class': self.color if AnimeLink.query.filter_by(link=quote(href)).first() else 'is-%s' %
+                                                                                                        tr['class'][0]
                     })
 
             self.on_error = False
