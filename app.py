@@ -101,6 +101,8 @@ def list_animes():
 def admin():
     folders = AnimeFolder.query.all()
     for folder in folders:
+        for title in folder.titles:
+            title.links.sort(key=attrgetter('season'))
         folder.titles.sort(key=attrgetter('name'))
     form = DeleteForm(request.form)
 
