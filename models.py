@@ -8,23 +8,23 @@ from config import db
 
 class AnimeFolder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, unique=True, nullable=False, collation='utf8mb4_general_ci')
+    name = db.Column(db.Text(collation='utf8mb4_general_ci'), unique=True, nullable=False)
     titles = db.relationship("AnimeTitle", backref="folder")
 
 
 class AnimeTitle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, unique=True, nullable=False, collation='utf8mb4_general_ci')
-    keyword = db.Column(db.Text, nullable=False, collation='utf8mb4_general_ci')
+    name = db.Column(db.Text(collation='utf8mb4_general_ci'), unique=True, nullable=False)
+    keyword = db.Column(db.Text(collation='utf8mb4_general_ci'), nullable=False)
     folder_id = db.Column(db.Integer, db.ForeignKey('anime_folder.id'))
     links = db.relationship('AnimeLink', backref="title")
 
 
 class AnimeLink(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    link = db.Column(db.Text, nullable=False, collation='utf8mb4_general_ci')
-    season = db.Column(db.Text, nullable=False, collation='utf8mb4_general_ci')
-    comment = db.Column(db.Text, collation='utf8mb4_general_ci')
+    link = db.Column(db.Text(collation='utf8mb4_general_ci'), nullable=False)
+    season = db.Column(db.Text(collation='utf8mb4_general_ci'), nullable=False)
+    comment = db.Column(db.Text(collation='utf8mb4_general_ci'))
     vf = db.Column(db.Boolean, nullable=False)
     title_id = db.Column(db.Integer, db.ForeignKey('anime_title.id'))
 
