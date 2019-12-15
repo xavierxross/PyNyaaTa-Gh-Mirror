@@ -3,7 +3,7 @@ section {
     padding-top: 2rem !important;
 }
 
-nav, nav > div, nav form {
+nav, nav > div {
     display: flex;
     align-items: center;
 }
@@ -91,7 +91,6 @@ label.checkbox {
 }
 
 #quick_scroll {
-    float: right;
     margin-bottom: 1rem;
 }
 
@@ -100,7 +99,7 @@ label.checkbox {
 }
 
 @media screen and (min-width: 1088px) {
-    .tooltip:hover::before, .tooltip:hover::after {
+    [data-tooltip]:hover::before, [data-tooltip]:hover::after {
         display: none !important;
     }
 }

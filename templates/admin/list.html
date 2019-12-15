@@ -1,19 +1,19 @@
 {% extends "layout.html" %}
 {% block title %}Admin List{% endblock %}
 {% block add_button %}
-    <a class="navbar-item tooltip has-tooltip-bottom" data-tooltip="Add entry" href="{{ url_for('admin_edit') }}">
+    <a class="navbar-item has-tooltip-bottom" data-tooltip="Add entry" href="{{ url_for('admin_edit') }}">
         <i class="fa fa-plus"></i><i>&nbsp;</i><span class="is-hidden-mobile">Add entry</span>
     </a>
 {% endblock %}
 {% block body %}
-    <p id="quick_scroll">
-        Quick Scroll :
+    <div id="quick_scroll" class="level-right">
+        <span class="level-item">Quick Scroll :</span>
         {% for folder in folders %}
             {% if loop.index0 %}
-                <a href="#{{ folder.name }}">{{ folder.name }}</a>
+                <a class="level-item" href="#{{ folder.name }}">{{ folder.name }}</a>
             {% endif %}
         {% endfor %}
-    </p>
+    </div>
 
     <table class="table is-bordered is-striped is-narrow is-fullwidth is-hoverable is-size-7">
         <thead>
