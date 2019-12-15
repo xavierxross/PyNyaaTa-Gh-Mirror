@@ -145,6 +145,7 @@ def admin_edit(link_id=None):
 
     if link_id:
         link = AnimeLink.query.filter_by(id=link_id).first()
+        form.folder.data = link.title.folder.id
     else:
         link = AnimeLink()
         for attr in dir(link):
