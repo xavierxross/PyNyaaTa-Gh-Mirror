@@ -1,4 +1,4 @@
-from operator import itemgetter
+from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for
 
@@ -100,6 +100,8 @@ def list_animes():
 @auth.login_required
 def admin():
     folders = AnimeFolder.query.all()
+    for folder in folders:
+        folder.titles.sort(key=attrgetter('name'))
     form = DeleteForm(request.form)
 
     if form.validate_on_submit():
