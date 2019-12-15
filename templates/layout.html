@@ -63,7 +63,7 @@
     {% if action_form %}
         {% if action_form.errors %}
             <div class="notification is-danger">
-                <button class="delete"></button>
+                <button class="delete" onclick="this.parentNode.style.display = 'none'"></button>
                 <ul>
                     {% for field in action_form.errors %}
                         {% for error in action_form.errors[field] %}
