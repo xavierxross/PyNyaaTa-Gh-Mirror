@@ -111,7 +111,7 @@ def admin():
             if not len(title.links):
                 db.session.delete(title)
             db.session.commit()
-            form.message = '%s (%s) has been successfully deleted' % (title, link.season)
+            form.message = '%s (%s) has been successfully deleted' % (title.name, link.season)
         else:
             form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
 
