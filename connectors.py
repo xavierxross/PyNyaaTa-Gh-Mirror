@@ -333,8 +333,8 @@ class Pantsu(Connector):
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
-                        'class': self.color if AnimeLink.query.filter_by(link=quote(href)).first() else 'is-%s' %
-                                                                                                        tr['class'][0]
+                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
+                                                                                                 tr['class'][0]
                     })
 
             self.on_error = False
@@ -402,7 +402,7 @@ class YggTorrent(Connector):
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
-                            'class': self.color if AnimeLink.query.filter_by(link=url['href']).first() else ''
+                            'class': self.color if AnimeLink.query.filter_by(link=quote(url['href'])).first() else ''
                         })
 
                 self.on_error = False
