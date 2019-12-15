@@ -354,9 +354,10 @@ class YggTorrent(Connector):
         sort_type = 'size'
         if self.return_type is ConnectorReturn.HISTORY:
             sort_type = 'publish_date'
+        sort_page = '&page=%s' % self.page if self.page > 1 else ''
 
-        return '%s/engine/search?do=search&order=desc&sort=%s&category=2145&sub_category=%s&name=%s&page=%s' % (
-            self.base_url, sort_type, self.category, self.query, self.page
+        return '%s/engine/search?name=%s&category=2145&sub_category=%s&do=search&order=desc&sort=%s%s' % (
+            self.base_url, self.query, self.category, sort_type, sort_page
         )
 
     def get_history(self):
