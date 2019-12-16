@@ -76,7 +76,7 @@ def latest(page=1):
 
 
 @app.route('/list')
-@app.rouet('/list/<url_filters>')
+@app.route('/list/<url_filters>')
 def list_animes(url_filters='nyaa,yggtorrent'):
     filters = None
     for i, to_filter in enumerate(url_filters.split(',')):
