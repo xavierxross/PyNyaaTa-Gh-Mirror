@@ -76,9 +76,10 @@ def latest(page=1):
 
 
 @app.route('/list')
-def list_animes():
+@app.rouet('/list/<url_filters>')
+def list_animes(url_filters='nyaa,yggtorrent'):
     filters = None
-    for i, to_filter in enumerate(request.args.get('s', 'nyaa,yggtorrent').split(',')):
+    for i, to_filter in enumerate(url_filters.split(',')):
         if not i:
             filters = AnimeLink.link.contains(to_filter)
         else:
