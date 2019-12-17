@@ -16,9 +16,9 @@ def verify_password(username, password):
 def boldify(name):
     query = request.args.get('q')
     name = Connector.boldify(name, query)
-    for title in AnimeTitle.query.all():
-        if title.keyword != query:
-            name = Connector.boldify(name, title.keyword)
+    for keyword in db.session.query(AnimeTitle.keyword.distinct()).all():
+        if keyword[0] is not query:
+            name = Connector.boldify(name, keyword[0])
     return name
 
 
