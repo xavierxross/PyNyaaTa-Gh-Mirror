@@ -17,7 +17,7 @@ def boldify(name):
     query = request.args.get('q')
     name = Connector.boldify(name, query)
     for keyword in db.session.query(AnimeTitle.keyword.distinct()).all():
-        if keyword[0] is not query:
+        if keyword[0].lower() != query.lower():
             name = Connector.boldify(name, keyword[0])
     return name
 
