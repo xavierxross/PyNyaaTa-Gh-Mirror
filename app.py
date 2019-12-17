@@ -14,7 +14,7 @@ def verify_password(username, password):
 
 @app.template_filter('boldify')
 def boldify(name):
-    query = request.args.get('q')
+    query = request.args.get('q', '')
     name = Connector.boldify(name, query)
     for keyword in db.session.query(AnimeTitle.keyword.distinct()).all():
         if keyword[0].lower() != query.lower():
