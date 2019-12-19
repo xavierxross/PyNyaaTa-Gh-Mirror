@@ -3,7 +3,7 @@
 
 I'm lazy and I want to search across severall VF and VOSTFR torrents databases in one click.
 That's the starting point that build this app.
-At first, it was a crappy PHP project without any good futur.
+At first, it was a crappy PHP project without any good future.
 After a good rewrite in Python, it's time to show it to the public, and here it is!
 
 ## Installing / Getting started
