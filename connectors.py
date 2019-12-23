@@ -11,7 +11,7 @@ from urllib.parse import quote
 import requests
 from bs4 import BeautifulSoup
 
-from config import IS_DEBUG
+from config import IS_DEBUG, CACHE_TIMEOUT
 from models import AnimeLink
 
 
@@ -26,7 +26,6 @@ class ConnectorLang(Enum):
 
 
 class Cache:
-    CACHE_TIMEOUT = 60 * 60
     CACHE_DATA = {}
 
     def cache_data(self, f):
@@ -57,7 +56,7 @@ class Cache:
             if not connector.on_error:
                 self.CACHE_DATA[connector.__class__.__name__][f.__name__][connector.query][connector.page] = {
                     'data': connector.data,
-                    'timeout': timestamp + self.CACHE_TIMEOUT,
+                    'timeout': timestamp + CACHE_TIMEOUT,
                     'is_more': connector.is_more
                 }
             return ret
