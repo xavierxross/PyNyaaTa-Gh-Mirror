@@ -255,7 +255,7 @@ class Nyaa(Connector):
                     })
 
             self.on_error = False
-            self.is_more = valid_trs is not len(trs)
+            self.is_more = valid_trs and valid_trs is not len(trs) - 1
 
 
 class Pantsu(Connector):
@@ -337,7 +337,7 @@ class Pantsu(Connector):
                     })
 
             self.on_error = False
-            self.is_more = valid_trs is not len(trs)
+            self.is_more = valid_trs and valid_trs is not len(trs) - 1
 
 
 class YggTorrent(Connector):
@@ -408,7 +408,7 @@ class YggTorrent(Connector):
                         })
 
                 self.on_error = False
-                self.is_more = valid_trs is not len(trs)
+                self.is_more = valid_trs and valid_trs is not len(trs) - 1
 
 
 class YggAnimation(YggTorrent):
