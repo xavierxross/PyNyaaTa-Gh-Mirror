@@ -160,6 +160,7 @@ def admin_edit(link_id=None):
                 except:
                     pass
         form.folder.choices = [(0, '')] + form.folder.choices
+        link.vf = False
 
     return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, action_form=form)
 
