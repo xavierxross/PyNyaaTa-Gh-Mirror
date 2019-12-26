@@ -23,6 +23,7 @@ APP_PORT = environ.get('FLASK_PORT', 5000)
 CACHE_TIMEOUT = environ.get('CACHE_TIMEOUT', 60 * 60)
 
 app = Flask(__name__)
+app.name = 'PyNyaaTa'
 app.secret_key = urandom(24).hex()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
     db_user, db_password, db_host, db_name
