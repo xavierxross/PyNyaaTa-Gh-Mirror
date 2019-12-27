@@ -157,7 +157,7 @@ def admin_edit(link_id=None):
             if not attr.startswith('_') and getattr(link, attr) is None:
                 try:
                     setattr(link, attr, '')
-                except:
+                except Exception:
                     pass
         form.folder.choices = [(0, '')] + form.folder.choices
         link.vf = False
