@@ -434,7 +434,10 @@ class AnimeUltime(Connector):
         sort_type = 'search'
 
         if self.return_type is ConnectorReturn.HISTORY:
-            page_date = datetime.now() - timedelta((int(self.page) - 1) * 365 / 12)
+            try:
+                page_date = datetime.now() - timedelta((int(self.page) - 1) * 365 / 12)
+            except OverflowError:
+                page_date = datetime.fromtimestamp(0)
             from_date = page_date.strftime('%m%Y')
             sort_type = 'history'
 
