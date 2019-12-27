@@ -29,7 +29,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s/%s?charset=utf
     db_user, db_password, db_host, db_name
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 200}
+app.config['SQLALCHEMY_POOL_RECYCLE'] = 200
 app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
 auth = HTTPBasicAuth()
 db = SQLAlchemy(app)
