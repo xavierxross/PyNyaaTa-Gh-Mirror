@@ -296,8 +296,9 @@ class Pantsu(Connector):
 
                 if check_downloads or check_seeds:
                     url = tds[1].a
+                    url_safe = ''.join(url.strings)
 
-                    if any(url.string in word for word in self.blacklist_words):
+                    if any(url_safe in word for word in self.blacklist_words):
                         continue
 
                     valid_trs = valid_trs + 1
@@ -320,9 +321,9 @@ class Pantsu(Connector):
                     locale.setlocale(locale.LC_ALL, current_locale)
 
                     self.data.append({
-                        'lang': self.get_lang(url.string),
+                        'lang': self.get_lang(url_safe),
                         'href': href,
-                        'name': url.string,
+                        'name': url_safe,
                         'comment': '',
                         'link': tds[2].decode_contents()
                             .replace('icon-magnet', 'fa fa-fw fa-magnet')
