@@ -39,7 +39,9 @@ class Cache:
                 for connector_func in list(self.CACHE_DATA[connector_class]):
                     for connector_query in list(self.CACHE_DATA[connector_class][connector_func]):
                         for connector_page in list(self.CACHE_DATA[connector_class][connector_func][connector_query]):
-                            if self.CACHE_DATA[connector_class][connector_func][connector_query][connector_page]['timeout'] < timestamp:
+                            if self.CACHE_DATA[connector_class][connector_func][connector_query][connector_page][
+                                'timeout'
+                            ] < timestamp:
                                 del self.CACHE_DATA[connector_class][connector_func][connector_query][connector_page]
 
             if connector.__class__.__name__ not in self.CACHE_DATA:
