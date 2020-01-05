@@ -34,6 +34,15 @@ class Cache:
             connector = args[0]
             timestamp = datetime.now().timestamp()
 
+            # clear old data
+            for cache_data in self.CACHE_DATA:
+                for connector_class in cache_data:
+                    for connector_func in connector_class:
+                        for connector_query in connector_func:
+                            for connector_page in connector_query:
+                                if connector_page['timeout'] < timestamp:
+                                    del connector_query
+
             if connector.__class__.__name__ not in self.CACHE_DATA:
                 self.CACHE_DATA[connector.__class__.__name__] = {}
             if f.__name__ not in self.CACHE_DATA[connector.__class__.__name__]:
@@ -472,6 +481,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, url['href']),
                         'name': url.get_text(),
                         'type': tds[1].string,
+                        'date': datetime.fromtimestamp(0),
                         'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                     })
             else:
@@ -485,6 +495,7 @@ class AnimeUltime(Connector):
                     'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
                     'name': name[0].string,
                     'type': ani_type[0].string.replace(':', ''),
+                    'date': datetime.fromtimestamp(0),
                     'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
                 })
 
