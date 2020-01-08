@@ -10,6 +10,7 @@ from urllib.parse import quote
 
 import requests
 from bs4 import BeautifulSoup
+from requests import ReadTimeout
 
 from config import IS_DEBUG, CACHE_TIMEOUT
 from models import AnimeLink
@@ -157,13 +158,19 @@ class Connector(ABC):
             else:
                 headers = {}
 
-            if params is not None:
-                response = requests.post(url, params, timeout=10, headers=headers)
-            else:
-                response = requests.get(url, timeout=10, headers=headers)
+            try:
+                if params is not None:
+                    response = requests.post(url, params, timeout=5, headers=headers)
+                else:
+                    response = requests.get(url, timeout=5, headers=headers)
 
-            output = response.text
-            http_code = response.status_code
+                output = response.text
+                http_code = response.status_code
+            except ReadTimeout as e:
+                output = ''
+                http_code = 500
+                if IS_DEBUG:
+                    print(e)
 
         return {'http_code': http_code, 'output': output}
 
