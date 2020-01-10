@@ -430,12 +430,7 @@ class YggTorrent(Connector):
 
 
 class YggAnimation(YggTorrent):
-    color = 'is-success'
     title = 'YggAnimation'
-    favicon = 'yggtorrent.png'
-    base_url = 'https://www2.yggtorrent.pe'
-    is_light = False
-    is_behind_cloudflare = True
     category = 2178
 
 
