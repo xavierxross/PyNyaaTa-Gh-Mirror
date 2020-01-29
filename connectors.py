@@ -371,7 +371,7 @@ class YggTorrent(Connector):
         sort_type = 'size'
         if self.return_type is ConnectorReturn.HISTORY:
             sort_type = 'publish_date'
-        sort_page = '&page=%s' % self.page * 50 if self.page > 1 else ''
+        sort_page = '&page=%s' % (self.page * 50) if self.page > 1 else ''
 
         return '%s/engine/search?name=%s&category=2145&sub_category=%s&do=search&order=desc&sort=%s%s' % (
             self.base_url, self.query, self.category, sort_type, sort_page
