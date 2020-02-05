@@ -362,7 +362,7 @@ class YggTorrent(Connector):
     color = 'is-success'
     title = 'YggTorrent'
     favicon = 'yggtorrent.png'
-    base_url = 'https://www2.yggtorrent.ws'
+    base_url = 'https://www2.yggtorrent.se'
     is_light = False
     is_behind_cloudflare = True
     category = 2179
