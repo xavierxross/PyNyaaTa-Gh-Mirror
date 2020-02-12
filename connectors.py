@@ -79,7 +79,7 @@ ConnectorCache = Cache()
 
 
 class Connector(ABC):
-    blacklist_words = ['Chris44', 'Vol.', '[zza]']
+    blacklist_words = ['Chris44', 'Vol.', '[zza]', '.ssa']
 
     @property
     @abstractmethod
