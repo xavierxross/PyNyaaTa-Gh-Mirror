@@ -248,7 +248,7 @@ class Nyaa(Connector):
                         url = urls[0]
                         has_comment = False
 
-                    if any(word in url.string for word in self.blacklist_words):
+                    if any(word.lower() in url.string.lower() for word in self.blacklist_words):
                         continue
 
                     valid_trs = valid_trs + 1
@@ -315,7 +315,7 @@ class Pantsu(Connector):
                     url = tds[1].a
                     url_safe = ''.join(url.strings)
 
-                    if any(word in url_safe for word in self.blacklist_words):
+                    if any(word.lower() in url_safe.lower() for word in self.blacklist_words):
                         continue
 
                     valid_trs = valid_trs + 1
@@ -401,7 +401,7 @@ class YggTorrent(Connector):
                     if check_downloads or check_seeds:
                         url = tds[1].a
 
-                        if any(word in url.string for word in self.blacklist_words):
+                        if any(word.lower() in url.string.lower() for word in self.blacklist_words):
                             continue
 
                         valid_trs = valid_trs + 1
