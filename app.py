@@ -1,3 +1,4 @@
+import time
 from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for
@@ -166,4 +167,9 @@ def admin_edit(link_id=None):
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', APP_PORT, IS_DEBUG)
+    while True:
+        try:
+            app.run('0.0.0.0', APP_PORT, IS_DEBUG)
+        except Exception:
+            time.sleep(10)
+            pass
