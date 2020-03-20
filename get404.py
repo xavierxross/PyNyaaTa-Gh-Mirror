@@ -11,5 +11,5 @@ for link in links:
 
     if html['http_code'] is not 200:
         print('(%d) %s %s : %s' % (html['http_code'], link.title.name, link.season, link.link))
-    elif b'darkgray' in html['output']:
+    elif 'darkgray' in str(html['output']):
         print('(darkgray) %s %s : %s' % (link.title.name, link.season, link.link))
