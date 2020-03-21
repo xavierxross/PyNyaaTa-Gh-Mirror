@@ -28,49 +28,51 @@
         <tbody>
 
         {% for folder in folders %}
-            <th colspan="5" id="{{ folder.name }}">{{ folder.name }}</th>
+            {% if folder.titles|length > 0 %}
+                <th colspan="5" id="{{ folder.name }}">{{ folder.name }}</th>
 
-            {% for title in folder.titles %}
-                {% for link in title.links %}
-                    <tr>
-                        {% if not loop.index0 %}
-                            <td rowspan="{{ title.links|length }}">
-                                {{ title.name }}
+                {% for title in folder.titles %}
+                    {% for link in title.links %}
+                        <tr>
+                            {% if not loop.index0 %}
+                                <td rowspan="{{ title.links|length }}">
+                                    {{ title.name }}
+                                </td>
+                            {% endif %}
+
+                            <td class="{{ link|colorify }}">
+                                {{ link.vf|flagify }}
+                                {{ link.link|urlize(30, target='_blank') }}
                             </td>
-                        {% endif %}
 
-                        <td class="{{ link|colorify }}">
-                            {{ link.vf|flagify }}
-                            {{ link.link|urlize(30, target='_blank') }}
-                        </td>
+                            <td>
+                                {{ link.season }}
+                            </td>
 
-                        <td>
-                            {{ link.season }}
-                        </td>
+                            <td>
+                                {{ link.comment|urlize(target='_blank') }}
+                            </td>
 
-                        <td>
-                            {{ link.comment|urlize(target='_blank') }}
-                        </td>
-
-                        <td>
-                            <a href="{{ url_for('search', q=link.title.keyword) }}" target="_blank">
-                                <i class="fa fa-search"></i>
-                            </a>
-                            <i>&nbsp;</i>
-                            <a href="{{ url_for('admin_edit', link_id=link.id) }}">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-                            <i>&nbsp;</i>
-                            <form method="post">
-                                {{ action_form.id(value=link.id) }}
-                                <button class="fa fa-trash fa-button"
-                                        onclick="return confirm('Are you sure you want to delete this item ?')">
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                            <td>
+                                <a href="{{ url_for('search', q=link.title.keyword) }}" target="_blank">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                                <i>&nbsp;</i>
+                                <a href="{{ url_for('admin_edit', link_id=link.id) }}">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                                <i>&nbsp;</i>
+                                <form method="post">
+                                    {{ action_form.id(value=link.id) }}
+                                    <button class="fa fa-trash fa-button"
+                                            onclick="return confirm('Are you sure you want to delete this item ?')">
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+            {% endif %}
         {% endfor %}
 
         </tbody>

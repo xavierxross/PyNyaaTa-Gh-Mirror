@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, HiddenField, SelectField, StringField
+from wtforms import BooleanField, HiddenField, StringField
 from wtforms.fields.html5 import SearchField, URLField
 from wtforms.validators import DataRequired
 
@@ -42,7 +42,7 @@ class DeleteForm(FlaskForm):
 
 class EditForm(FlaskForm):
     id = HiddenField('id')
-    folder = SelectField('folder', validators=[DataRequired()], coerce=int)
+    folder = StringField('folder', validators=[DataRequired()])
     name = StringField('name', validators=[DataRequired()])
     link = URLField('link', validators=[DataRequired()])
     season = StringField('season', validators=[DataRequired()])

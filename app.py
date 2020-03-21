@@ -112,10 +112,15 @@ def admin():
         link = AnimeLink.query.filter_by(id=form.id.data).first()
         if link:
             title = link.title
+            folder = title.folder
             db.session.delete(link)
+            db.session.commit()
             if not len(title.links):
                 db.session.delete(title)
-            db.session.commit()
+                db.session.commit()
+            if not len(folder.titles):
+                db.session.delete(folder)
+                db.session.commit()
             form.message = '%s (%s) has been successfully deleted' % (title.name, link.season)
         else:
             form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
@@ -123,18 +128,31 @@ def admin():
     return render_template('admin/list.html', search_form=SearchForm(), folders=folders, action_form=form)
 
 
+def clean_model(obj):
+    for attr in dir(obj):
+        if not attr.startswith('_') and getattr(obj, attr) is None:
+            try:
+                setattr(obj, attr, '')
+            except Exception:
+                pass
+    return obj
+
+
 @app.route('/admin/edit', methods=['GET', 'POST'])
 @app.route('/admin/edit/<int:link_id>', methods=['GET', 'POST'])
 @auth.login_required
 def admin_edit(link_id=None):
-    titles = AnimeTitle.query.all()
+    folders = AnimeFolder.query.all()
     form = EditForm(request.form)
-    form.folder.choices = [(query.id, query.name) for query in AnimeFolder.query.all()]
 
     if form.validate_on_submit():
+        folder = AnimeFolder.query.filter_by(name=form.folder.data).first()
+        folder = folder if folder else AnimeFolder()
+        folder.name = form.folder.data
+        db.session.add(folder)
         title = AnimeTitle.query.filter_by(name=form.name.data).first()
         title = title if title else AnimeTitle()
-        title.folder_id = form.folder.data
+        title.folder_id = folder.id
         title.name = form.name.data
         title.keyword = form.keyword.data.lower() if form.keyword.data else title.keyword
         db.session.add(title)
@@ -153,17 +171,11 @@ def admin_edit(link_id=None):
         link = AnimeLink.query.filter_by(id=link_id).first()
         form.folder.data = link.title.folder.id
     else:
-        link = AnimeLink()
-        for attr in dir(link):
-            if not attr.startswith('_') and getattr(link, attr) is None:
-                try:
-                    setattr(link, attr, '')
-                except Exception:
-                    pass
-        form.folder.choices = [(0, '')] + form.folder.choices
+        link = clean_model(AnimeLink())
+        link.title = clean_model(AnimeTitle())
         link.vf = False
 
-    return render_template('admin/edit.html', search_form=SearchForm(), link=link, titles=titles, action_form=form)
+    return render_template('admin/edit.html', search_form=SearchForm(), link=link, folders=folders, action_form=form)
 
 
 if __name__ == '__main__':

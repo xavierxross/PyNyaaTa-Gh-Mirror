@@ -10,7 +10,13 @@
                 <div class="field column">
                     <div class="control is-expanded">
                         <div class="select is-fullwidth">
-                            {{ action_form.folder }}
+                            {{ action_form.folder(value=link.title.folder.name, list='folders', class='input', placeholder='Folder') }}
+                            <datalist id="folders">
+                                {% for folder in folders %}
+                                    <option {{ 'selected' if folder.id == link.title.folder.id }}
+                                            value="{{ folder.name }}">
+                                {% endfor %}
+                            </datalist>
                         </div>
                     </div>
                 </div>
@@ -20,10 +26,12 @@
                         <div class="select is-fullwidth">
                             {{ action_form.name(value=link.title.name, list='animes', class='input', placeholder='Name') }}
                             <datalist id="animes">
-                                {% for title in titles %}
-                                    <option {{ 'selected' if title.id == link.title.id }}
-                                            data-folder-id="{{ title.folder.id }}" value="{{ title.name }}"
-                                            data-keyword="{{ title.keyword }}">
+                                {% for folder in folders %}
+                                    {% for title in folder.titles %}
+                                        <option {{ 'selected' if title.id == link.title.id }}
+                                                data-folder="{{ title.folder.name }}" value="{{ title.name }}"
+                                                data-keyword="{{ title.keyword }}">
+                                    {% endfor %}
                                 {% endfor %}
                             </datalist>
 
@@ -31,7 +39,7 @@
                                 document.getElementById('name').oninput = function (choice) {
                                     document.getElementById('animes').childNodes.forEach(function (option) {
                                         if (option.value === choice.target.value) {
-                                            document.getElementById('folder').value = option.dataset.folderId;
+                                            document.getElementById('folder').value = option.dataset.folder;
                                             document.getElementById('keyword').value = option.dataset.keyword;
                                         }
                                     });
@@ -72,9 +80,11 @@
                         <div class="select is-fullwidth">
                             {{ action_form.keyword(value=link.title.keyword, list='keywords', class='input', placeholder='Keyword') }}
                             <datalist id="keywords">
-                                {% for title in titles %}
-                                    <option {{ 'selected' if title.keyword == link.title.keyword }}
-                                            value="{{ title.keyword }}">
+                                {% for folder in folders %}
+                                    {% for title in folder.titles %}
+                                        <option {{ 'selected' if title.keyword == link.title.keyword }}
+                                                value="{{ title.keyword }}">
+                                    {% endfor %}
                                 {% endfor %}
                             </datalist>
                         </div>
