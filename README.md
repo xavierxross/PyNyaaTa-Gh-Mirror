@@ -22,6 +22,7 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 - Install Python 3: https://www.python.org/downloads/
 - Install Pip: https://pip.pypa.io/en/stable/installing/
 - Install MariaDB (or any MySQL server): https://mariadb.com/downloads/
+- Install PhantomJS : https://phantomjs.org/download.html
 - Clone this repository
 - Launch a terminal and move into the root of the cloned repository
 - Run `pip install -r requirements.txt`
@@ -32,7 +33,7 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 ## Features
 
 * Search on [Nyaa.si](https://nyaa.si/), [Nyaa.net (codename Pantsu)](https://nyaa.net/), [YggTorrent](https://duckduckgo.com/?q=yggtorrent) and [Anime-Ultime](http://www.anime-ultime.net/index-0-1)
-* Provide useful links to [TheTVDB](https://www.thetvdb.com/), [Nautiljon](https://www.nautiljon.com/) and [AnimeMangaDDL](https://animemangaddl.com/) during a search
+* Provide useful links to [TheTVDB](https://www.thetvdb.com/) and [Nautiljon](https://www.nautiljon.com/) during a search
 * Color official and bad links
 * Add seeded links to a database
 * Color seeded link on search
