@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
+from logging import getLogger
 from subprocess import run
 from sys import platform
 from urllib.parse import quote
@@ -148,7 +149,7 @@ class Connector(ABC):
                 output = ''
                 http_code = 500
                 if IS_DEBUG:
-                    print(e)
+                    getLogger().exception(e)
         else:
             if ajax:
                 headers = {'X-Requested-With': 'XMLHttpRequest'}
@@ -167,7 +168,7 @@ class Connector(ABC):
                 output = ''
                 http_code = 500
                 if IS_DEBUG:
-                    print(e)
+                    getLogger().exception(e)
 
         return {'http_code': http_code, 'output': output}
 
