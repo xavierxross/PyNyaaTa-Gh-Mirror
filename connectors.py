@@ -324,13 +324,13 @@ class Pantsu(Connector):
                     locale.setlocale(locale.LC_ALL, ('en_US', 'UTF-8'))
                     formatted_date = datetime.strptime(
                         '%s/%s/%s, %s:%s:%s %s' % (
-                            splitted_date[1],
-                            splitted_date[2],
-                            splitted_date[3],
-                            splitted_date[4].zfill(2).replace('00', '12'),
-                            splitted_date[5],
-                            splitted_date[6],
-                            splitted_date[7]
+                            splitted_date.group(1),
+                            splitted_date.group(2),
+                            splitted_date.group(3),
+                            splitted_date.group(4).zfill(2).replace('00', '12'),
+                            splitted_date.group(5),
+                            splitted_date.group(6),
+                            splitted_date.group(7)
                         ), '%m/%d/%Y, %I:%M:%S %p'
                     )
                     locale.setlocale(locale.LC_ALL, current_locale)
