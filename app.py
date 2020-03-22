@@ -1,5 +1,6 @@
-import time
+from logging import getLogger
 from operator import attrgetter, itemgetter
+from time import sleep
 
 from flask import redirect, render_template, request, url_for
 
@@ -182,6 +183,7 @@ if __name__ == '__main__':
     while True:
         try:
             app.run('0.0.0.0', APP_PORT, IS_DEBUG)
-        except Exception:
-            time.sleep(10)
+        except Exception as e:
+            getLogger().exception(e)
+            sleep(10)
             pass

@@ -10,7 +10,6 @@ from urllib.parse import quote
 
 import requests
 from bs4 import BeautifulSoup
-from requests import Timeout
 
 from config import IS_DEBUG, CACHE_TIMEOUT, BLACKLIST_WORDS
 from models import AnimeLink
@@ -164,7 +163,7 @@ class Connector(ABC):
 
                 output = response.text
                 http_code = response.status_code
-            except Timeout as e:
+            except requests.Timeout as e:
                 output = ''
                 http_code = 500
                 if IS_DEBUG:
