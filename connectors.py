@@ -8,10 +8,12 @@ from logging import getLogger
 from urllib.parse import quote
 
 from bs4 import BeautifulSoup
-from cfscrape import create_scraper
+from cloudscraper import create_scraper
 
 from config import IS_DEBUG, CACHE_TIMEOUT, BLACKLIST_WORDS
 from models import AnimeLink
+
+scraper = create_scraper()
 
 
 class ConnectorReturn(Enum):
@@ -102,11 +104,6 @@ class Connector(ABC):
     def is_light(self):
         pass
 
-    @property
-    @abstractmethod
-    def is_behind_cloudflare(self):
-        pass
-
     def __init__(self, query, page=1, return_type=ConnectorReturn.SEARCH):
         self.query = query
         self.data = []
@@ -136,8 +133,6 @@ class Connector(ABC):
         return self
 
     def curl_content(self, url, params=None, ajax=False):
-        scraper = create_scraper()
-
         if ajax:
             headers = {'X-Requested-With': 'XMLHttpRequest'}
         else:
@@ -193,7 +188,6 @@ class Nyaa(Connector):
     favicon = 'nyaa.png'
     base_url = 'https://nyaa.si'
     is_light = False
-    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         sort_type = 'size'
@@ -266,7 +260,6 @@ class Pantsu(Connector):
     favicon = 'pantsu.png'
     base_url = 'https://nyaa.net'
     is_light = False
-    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         sort_type = 4
@@ -349,7 +342,6 @@ class YggTorrent(Connector):
     favicon = 'yggtorrent.png'
     base_url = 'https://www2.yggtorrent.se'
     is_light = False
-    is_behind_cloudflare = True
     category = 2179
 
     def get_full_search_url(self):
@@ -425,7 +417,6 @@ class AnimeUltime(Connector):
     favicon = 'animeultime.png'
     base_url = 'http://www.anime-ultime.net'
     is_light = True
-    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         from_date = ''
@@ -530,7 +521,6 @@ class Other(Connector):
     favicon = 'blank.png'
     base_url = ''
     is_light = True
-    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         pass

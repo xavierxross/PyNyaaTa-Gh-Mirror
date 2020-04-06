@@ -8,4 +8,5 @@ requests==2.21.0
 beautifulsoup4==4.7.1
 python-dotenv==0.9.1
 Werkzeug==0.14.1
-cfscrape
+requests-toolbelt
+cloudscraper
