@@ -5,12 +5,10 @@ from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
 from logging import getLogger
-from subprocess import run
-from sys import platform
 from urllib.parse import quote
 
-import requests
 from bs4 import BeautifulSoup
+from cfscrape import create_scraper
 
 from config import IS_DEBUG, CACHE_TIMEOUT, BLACKLIST_WORDS
 from models import AnimeLink
@@ -138,37 +136,26 @@ class Connector(ABC):
         return self
 
     def curl_content(self, url, params=None, ajax=False):
-        if self.is_behind_cloudflare:
-            try:
-                qt_env = {'QT_QPA_PLATFORM': 'offscreen'} if platform == 'linux' else {}
-                qt_output = run('phantomjs --cookies-file=/tmp/cookies.json delay.js "%s" 5000' % url, env=qt_env,
-                                shell=True, check=True, capture_output=True, timeout=7000)
-                output = qt_output.stdout
-                http_code = 200
-            except Exception as e:
-                output = ''
-                http_code = 500
-                if IS_DEBUG:
-                    getLogger().exception(e)
+        scraper = create_scraper()
+
+        if ajax:
+            headers = {'X-Requested-With': 'XMLHttpRequest'}
         else:
-            if ajax:
-                headers = {'X-Requested-With': 'XMLHttpRequest'}
+            headers = {}
+
+        try:
+            if params is not None:
+                response = scraper.post(url, params, timeout=5, headers=headers)
             else:
-                headers = {}
+                response = scraper.get(url, timeout=5, headers=headers)
 
-            try:
-                if params is not None:
-                    response = requests.post(url, params, timeout=5, headers=headers)
-                else:
-                    response = requests.get(url, timeout=5, headers=headers)
-
-                output = response.text
-                http_code = response.status_code
-            except requests.Timeout as e:
-                output = ''
-                http_code = 500
-                if IS_DEBUG:
-                    getLogger().exception(e)
+            output = response.text
+            http_code = response.status_code
+        except Exception as e:
+            output = ''
+            http_code = 500
+            if IS_DEBUG:
+                getLogger().exception(e)
 
         return {'http_code': http_code, 'output': output}
 
