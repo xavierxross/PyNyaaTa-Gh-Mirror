@@ -22,7 +22,6 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 - Install Python 3: https://www.python.org/downloads/
 - Install Pip: https://pip.pypa.io/en/stable/installing/
 - Install MariaDB (or any MySQL server): https://mariadb.com/downloads/
-- Install NodeJS: https://nodejs.org/en/
 - Clone this repository
 - Launch a terminal and move into the root of the cloned repository
 - Run `pip install -r requirements.txt`
