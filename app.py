@@ -1,4 +1,3 @@
-from logging import getLogger
 from operator import attrgetter, itemgetter
 from time import sleep
 
@@ -134,7 +133,7 @@ def clean_model(obj):
         if not attr.startswith('_') and getattr(obj, attr) is None:
             try:
                 setattr(obj, attr, '')
-            except Exception:
+            except AttributeError:
                 pass
     return obj
 

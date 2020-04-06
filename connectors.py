@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 from cloudscraper import create_scraper
+from requests import RequestException
 
 from config import IS_DEBUG, CACHE_TIMEOUT, BLACKLIST_WORDS
 from models import AnimeLink
@@ -78,6 +79,29 @@ class Cache:
 ConnectorCache = Cache()
 
 
+def curl_content(url, params=None, ajax=False):
+    if ajax:
+        headers = {'X-Requested-With': 'XMLHttpRequest'}
+    else:
+        headers = {}
+
+    try:
+        if params is not None:
+            response = scraper.post(url, params, timeout=5, headers=headers)
+        else:
+            response = scraper.get(url, timeout=5, headers=headers)
+
+        output = response.text
+        http_code = response.status_code
+    except RequestException as e:
+        output = ''
+        http_code = 500
+        if IS_DEBUG:
+            getLogger().exception(e)
+
+    return {'http_code': http_code, 'output': output}
+
+
 class Connector(ABC):
     @property
     @abstractmethod
@@ -132,28 +156,6 @@ class Connector(ABC):
                 self.get_history()
         return self
 
-    def curl_content(self, url, params=None, ajax=False):
-        if ajax:
-            headers = {'X-Requested-With': 'XMLHttpRequest'}
-        else:
-            headers = {}
-
-        try:
-            if params is not None:
-                response = scraper.post(url, params, timeout=5, headers=headers)
-            else:
-                response = scraper.get(url, timeout=5, headers=headers)
-
-            output = response.text
-            http_code = response.status_code
-        except Exception as e:
-            output = ''
-            http_code = 500
-            if IS_DEBUG:
-                getLogger().exception(e)
-
-        return {'http_code': http_code, 'output': output}
-
     @staticmethod
     def get_instance(url, query):
         if 'nyaa.si' in url:
@@ -202,7 +204,7 @@ class Nyaa(Connector):
 
     @ConnectorCache.cache_data
     def search(self):
-        response = self.curl_content(self.get_full_search_url())
+        response = curl_content(self.get_full_search_url())
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -274,7 +276,7 @@ class Pantsu(Connector):
 
     @ConnectorCache.cache_data
     def search(self):
-        response = self.curl_content(self.get_full_search_url())
+        response = curl_content(self.get_full_search_url())
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -320,9 +322,8 @@ class Pantsu(Connector):
                         'href': href,
                         'name': url_safe,
                         'comment': '',
-                        'link': tds[2].decode_contents()
-                            .replace('icon-magnet', 'fa fa-fw fa-magnet')
-                            .replace('icon-floppy', 'fa fa-fw fa-download'),
+                        'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
+                            'icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
                         'date': formatted_date,
                         'seeds': check_seeds,
@@ -360,7 +361,7 @@ class YggTorrent(Connector):
     @ConnectorCache.cache_data
     def search(self):
         if self.category:
-            response = self.curl_content(self.get_full_search_url())
+            response = curl_content(self.get_full_search_url())
 
             if response['http_code'] is 200:
                 html = BeautifulSoup(response['output'], 'html.parser')
@@ -434,7 +435,7 @@ class AnimeUltime(Connector):
 
     @ConnectorCache.cache_data
     def search(self):
-        response = self.curl_content(self.get_full_search_url(), {'search': self.query})
+        response = curl_content(self.get_full_search_url(), {'search': self.query})
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
@@ -482,7 +483,7 @@ class AnimeUltime(Connector):
 
     @ConnectorCache.cache_data
     def get_history(self):
-        response = self.curl_content(self.get_full_search_url())
+        response = curl_content(self.get_full_search_url())
 
         if response['http_code'] is 200:
             html = BeautifulSoup(response['output'], 'html.parser')
