@@ -229,16 +229,18 @@ class Nyaa(Connector):
                         url = urls[0]
                         has_comment = False
 
-                    if any(word.lower() in url.string.lower() for word in BLACKLIST_WORDS):
+                    url_safe = url.get_text()
+
+                    if any(word.lower() in url_safe.lower() for word in BLACKLIST_WORDS):
                         continue
 
                     valid_trs = valid_trs + 1
                     href = '%s%s' % (self.base_url, url['href'])
 
                     self.data.append({
-                        'lang': self.get_lang(url.string),
+                        'lang': self.get_lang(url_safe),
                         'href': href,
-                        'name': url.string,
+                        'name': url_safe,
                         'comment': str(urls[0]).replace('/view/',
                                                         '%s%s' % (self.base_url, '/view/')) if has_comment else '',
                         'link': tds[2].decode_contents().replace('/download/',
@@ -293,7 +295,7 @@ class Pantsu(Connector):
 
                 if check_downloads or check_seeds:
                     url = tds[1].a
-                    url_safe = ''.join(url.strings)
+                    url_safe = url.get_text()
 
                     if any(word.lower() in url_safe.lower() for word in BLACKLIST_WORDS):
                         continue
@@ -378,16 +380,17 @@ class YggTorrent(Connector):
 
                     if check_downloads or check_seeds:
                         url = tds[1].a
+                        url_safe = url.get_text()
 
-                        if any(word.lower() in url.string.lower() for word in BLACKLIST_WORDS):
+                        if any(word.lower() in url_safe.lower() for word in BLACKLIST_WORDS):
                             continue
 
                         valid_trs = valid_trs + 1
 
                         self.data.append({
-                            'lang': self.get_lang(url.string),
+                            'lang': self.get_lang(url_safe),
                             'href': url['href'],
-                            'name': url.string,
+                            'name': url_safe,
                             'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
                                        (url['href'], tds[3].decode_contents()),
                             'link': '<a href="%s/engine/download_torrent?id=%s">'
