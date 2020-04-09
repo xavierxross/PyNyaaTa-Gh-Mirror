@@ -1,11 +1,35 @@
 from operator import attrgetter, itemgetter
 from time import sleep
 
-from flask import redirect, render_template, request, url_for
+from flask import redirect, render_template, request, url_for, abort
 
-from config import app, auth, db, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT
+from config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT
 from connectors import *
-from models import AnimeFolder, AnimeTitle, DeleteForm, SearchForm, EditForm
+from forms import SearchForm, DeleteForm, EditForm
+
+if MYSQL_ENABLED:
+    from config import db
+    from models import AnimeFolder, AnimeTitle, AnimeLink
+
+
+def clean_model(obj):
+    for attr in dir(obj):
+        if not attr.startswith('_') and getattr(obj, attr) is None:
+            try:
+                setattr(obj, attr, '')
+            except AttributeError:
+                pass
+    return obj
+
+
+def mysql_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not MYSQL_ENABLED:
+            return abort(404)
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 @auth.verify_password
@@ -17,9 +41,10 @@ def verify_password(username, password):
 def boldify(name):
     query = request.args.get('q', '')
     name = Connector.boldify(name, query)
-    for keyword in db.session.query(AnimeTitle.keyword.distinct()).all():
-        if keyword[0].lower() != query.lower():
-            name = Connector.boldify(name, keyword[0])
+    if MYSQL_ENABLED:
+        for keyword in db.session.query(AnimeTitle.keyword.distinct()).all():
+            if keyword[0].lower() != query.lower():
+                name = Connector.boldify(name, keyword[0])
     return name
 
 
@@ -52,7 +77,8 @@ def search():
         AnimeUltime(query).run(),
     ]
 
-    return render_template('search.html', search_form=SearchForm(), connectors=results)
+    return render_template('search.html', search_form=SearchForm(), connectors=results,
+                           mysql_disabled=not MYSQL_ENABLED)
 
 
 @app.route('/latest')
@@ -73,11 +99,13 @@ def latest(page=1):
         result['self'] = Connector.get_instance(result['href'], '')
     results.sort(key=itemgetter('date'), reverse=True)
 
-    return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page)
+    return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page,
+                           mysql_disabled=not MYSQL_ENABLED)
 
 
 @app.route('/list')
 @app.route('/list/<url_filters>')
+@mysql_required
 def list_animes(url_filters='nyaa,yggtorrent'):
     filters = None
     for i, to_filter in enumerate(url_filters.split(',')):
@@ -99,6 +127,7 @@ def list_animes(url_filters='nyaa,yggtorrent'):
 
 
 @app.route('/admin', methods=['GET', 'POST'])
+@mysql_required
 @auth.login_required
 def admin():
     folders = AnimeFolder.query.all()
@@ -128,18 +157,9 @@ def admin():
     return render_template('admin/list.html', search_form=SearchForm(), folders=folders, action_form=form)
 
 
-def clean_model(obj):
-    for attr in dir(obj):
-        if not attr.startswith('_') and getattr(obj, attr) is None:
-            try:
-                setattr(obj, attr, '')
-            except AttributeError:
-                pass
-    return obj
-
-
 @app.route('/admin/edit', methods=['GET', 'POST'])
 @app.route('/admin/edit/<int:link_id>', methods=['GET', 'POST'])
+@mysql_required
 @auth.login_required
 def admin_edit(link_id=None):
     folders = AnimeFolder.query.all()

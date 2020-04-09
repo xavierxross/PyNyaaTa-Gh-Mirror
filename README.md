@@ -13,20 +13,16 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 ### With Docker
 
 - Install Docker: https://hub.docker.com/search/?type=edition&offering=community
-- Be sure to have a MySQL Server installed and running
-- Create a .env like [this one](.env.dist)
-- Run `docker run --env-file .env -p 5000 xefir/pynyaata`
+- Run `docker run -p 5000 xefir/pynyaata`
 - The app is accessible at http://localhost:5000
 
 ### Without Docker
 
 - Install Python 3: https://www.python.org/downloads/
 - Install Pip: https://pip.pypa.io/en/stable/installing/
-- Install MariaDB (or any MySQL server): https://mariadb.com/downloads/
 - Clone this repository
 - Launch a terminal and move into the root of the cloned repository
 - Run `pip install -r requirements.txt`
-- Copy the `.env.dist` file to `.env` and ajust values to point to your MySQL server
 - Run `python3 app.py`
 - The app is accessible at http://localhost:5000
 
@@ -43,6 +39,7 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 
 All is managed by environment variables.
 Please look into the `.env.dist` file to list all env variables possible.
+You have to install MariaDB (or any MySQL server) to be able to access the admin panel.
 
 ## Links
 

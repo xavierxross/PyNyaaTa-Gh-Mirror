@@ -11,8 +11,7 @@ from bs4 import BeautifulSoup
 from cloudscraper import create_scraper
 from requests import RequestException
 
-from config import IS_DEBUG, CACHE_TIMEOUT, BLACKLIST_WORDS
-from models import AnimeLink
+from config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
 
 scraper = create_scraper()
 
@@ -100,6 +99,13 @@ def curl_content(url, params=None, ajax=False):
             getLogger().exception(e)
 
     return {'http_code': http_code, 'output': output}
+
+
+def link_exist_in_db(href):
+    if MYSQL_ENABLED:
+        from models import AnimeLink
+        return AnimeLink.query.filter_by(link=href).first()
+    return False
 
 
 class Connector(ABC):
@@ -250,8 +256,7 @@ class Nyaa(Connector):
                         'seeds': check_seeds,
                         'leechs': tds[6].string,
                         'downloads': check_downloads,
-                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
-                                                                                                 tr['class'][0]
+                        'class': self.color if link_exist_in_db(href) else 'is-%s' % tr['class'][0]
                     })
 
             self.on_error = False
@@ -331,8 +336,7 @@ class Pantsu(Connector):
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
-                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else 'is-%s' %
-                                                                                                 tr['class'][0]
+                        'class': self.color if link_exist_in_db(href) else 'is-%s' % tr['class'][0]
                     })
 
             self.on_error = False
@@ -401,9 +405,7 @@ class YggTorrent(Connector):
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
-                            'class': self.color if AnimeLink.query.filter_by(
-                                link=quote(url['href'], '/+:')
-                            ).first() else ''
+                            'class': self.color if link_exist_in_db(quote(url['href'], '/+:')) else ''
                         })
 
                 self.on_error = False
@@ -465,7 +467,7 @@ class AnimeUltime(Connector):
                         'name': url.get_text(),
                         'type': tds[1].string,
                         'date': datetime.fromtimestamp(0),
-                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
+                        'class': self.color if link_exist_in_db(href) else ''
                     })
             else:
                 player = html.select('div.AUVideoPlayer')
@@ -479,7 +481,7 @@ class AnimeUltime(Connector):
                     'name': name[0].string,
                     'type': ani_type[0].string.replace(':', ''),
                     'date': datetime.fromtimestamp(0),
-                    'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
+                    'class': self.color if link_exist_in_db(href) else ''
                 })
 
             self.on_error = False
@@ -513,7 +515,7 @@ class AnimeUltime(Connector):
                         'name': link.string,
                         'type': tds[4].string,
                         'date': release_date,
-                        'class': self.color if AnimeLink.query.filter_by(link=href).first() else ''
+                        'class': self.color if link_exist_in_db(href) else ''
                     })
 
             self.on_error = False
