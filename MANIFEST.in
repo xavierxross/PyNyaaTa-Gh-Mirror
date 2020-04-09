@@ -1,2 +1,3 @@
-recursive-include static *
-recursive-include templates *
+include run.py
+recursive-include pynyaata/static *
+recursive-include pynyaata/templates *
