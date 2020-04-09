@@ -3,6 +3,7 @@
 .db
 .env
 .git
+build
 dist
 *.egg*
 __pycache__

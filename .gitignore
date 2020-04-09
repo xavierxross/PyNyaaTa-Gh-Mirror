@@ -3,6 +3,7 @@
 .db
 .env
 dist
+build
 *.egg*
 __pycache__
 test.py

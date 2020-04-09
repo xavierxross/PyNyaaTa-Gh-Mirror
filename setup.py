@@ -17,6 +17,7 @@ setup(
     url="https://git.crystalyx.net/Xefir/PyNyaaTa",
     packages=find_packages(),
     install_requires=requirements,
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
