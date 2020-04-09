@@ -206,7 +206,7 @@ class Nyaa(Connector):
     def search(self):
         response = curl_content(self.get_full_search_url())
 
-        if response['http_code'] is 200:
+        if response['http_code'] == 200:
             html = BeautifulSoup(response['output'], 'html.parser')
             trs = html.select('table.torrent-list tr')
             valid_trs = 0
@@ -280,7 +280,7 @@ class Pantsu(Connector):
     def search(self):
         response = curl_content(self.get_full_search_url())
 
-        if response['http_code'] is 200:
+        if response['http_code'] == 200:
             html = BeautifulSoup(response['output'], 'html.parser')
             trs = html.select('div.results tr')
             valid_trs = 0
@@ -365,7 +365,7 @@ class YggTorrent(Connector):
         if self.category:
             response = curl_content(self.get_full_search_url())
 
-            if response['http_code'] is 200:
+            if response['http_code'] == 200:
                 html = BeautifulSoup(response['output'], 'html.parser')
                 trs = html.select('table.table tr')
                 valid_trs = 0
@@ -440,7 +440,7 @@ class AnimeUltime(Connector):
     def search(self):
         response = curl_content(self.get_full_search_url(), {'search': self.query})
 
-        if response['http_code'] is 200:
+        if response['http_code'] == 200:
             html = BeautifulSoup(response['output'], 'html.parser')
             title = html.select('div.title')
 
@@ -488,7 +488,7 @@ class AnimeUltime(Connector):
     def get_history(self):
         response = curl_content(self.get_full_search_url())
 
-        if response['http_code'] is 200:
+        if response['http_code'] == 200:
             html = BeautifulSoup(response['output'], 'html.parser')
             tables = html.select('table.jtable')
             h3s = html.findAll('h3')
