@@ -44,24 +44,8 @@ You have to install MariaDB (or any MySQL server) to be able to access the admin
 ## Links
 
 - Project homepage: https://nyaa.crystalyx.net/
-- Repository: https://git.crystalyx.net/Xefir/PyNyaaTa
+- Source repository: https://git.crystalyx.net/Xefir/PyNyaaTa
 - Issue tracker: https://git.crystalyx.net/Xefir/PyNyaaTa/issues
 - My other projects: https://git.crystalyx.net/Xefir
-
-## Licensing
-
-```
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                   Version 2, December 2004
-
-Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
-Everyone is permitted to copy and distribute verbatim or modified
-copies of this license document, and changing it is allowed as long
-as the name is changed.
-
-           DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
- 0. You just DO WHAT THE FUCK YOU WANT TO.
-```
+- Docker hub: https://hub.docker.com/r/xefir/pynyaata
+- Donations: https://paypal.me/Xefir

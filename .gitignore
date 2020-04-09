@@ -2,5 +2,7 @@
 .venv
 .db
 .env
+dist
+*.egg*
 __pycache__
 test.py

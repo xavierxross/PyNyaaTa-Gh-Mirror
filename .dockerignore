@@ -3,5 +3,7 @@
 .db
 .env
 .git
+dist
+*.egg*
 __pycache__
 test.py
