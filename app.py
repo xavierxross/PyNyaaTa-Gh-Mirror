@@ -60,7 +60,8 @@ def colorify(model):
 
 @app.route('/')
 def home():
-    return render_template('layout.html', search_form=SearchForm(), title='Animes torrents search engine')
+    return render_template('layout.html', search_form=SearchForm(), title='Animes torrents search engine',
+                           mysql_disabled=not MYSQL_ENABLED)
 
 
 @app.route('/search')

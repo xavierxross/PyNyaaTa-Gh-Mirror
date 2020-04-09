@@ -23,7 +23,7 @@
             <i class="fa fa-newspaper-o"></i><i>&nbsp;</i>
             <span class="is-hidden-mobile">Latest torrents</span>
         </a>
-        {% if mysql_disabled %}
+        {% if not mysql_disabled %}
             <a class="navbar-item has-tooltip-bottom" data-tooltip="My seeded torrents"
                href="{{ url_for('list_animes') }}">
                 <i class="fa fa-cloud-download"></i><i>&nbsp;</i>
