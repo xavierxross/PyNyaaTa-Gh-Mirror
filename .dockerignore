@@ -2,5 +2,6 @@
 .venv
 .db
 .env
+.git
 __pycache__
 test.py
