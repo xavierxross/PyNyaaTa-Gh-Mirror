@@ -23,7 +23,7 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 - Clone this repository
 - Launch a terminal and move into the root of the cloned repository
 - Run `pip install -r requirements.txt`
-- Run `python3 app.py`
+- Run `python3 run.py`
 - The app is accessible at http://localhost:5000
 
 ## Features
