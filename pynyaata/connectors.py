@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from cloudscraper import create_scraper
 from requests import RequestException
 
-from config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
+from pynyaata.config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
 
 scraper = create_scraper()
 
@@ -103,7 +103,7 @@ def curl_content(url, params=None, ajax=False):
 
 def link_exist_in_db(href):
     if MYSQL_ENABLED:
-        from models import AnimeLink
+        from pynyaata.models import AnimeLink
         return AnimeLink.query.filter_by(link=href).first()
     return False
 

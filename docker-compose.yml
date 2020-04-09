@@ -5,7 +5,7 @@ services:
     build: .
     ports:
       - "5000:5000"
-    entrypoint: python3 app.py
+    entrypoint: python3 run.py
     working_dir: /app
     depends_on:
       - db

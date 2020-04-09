@@ -1,15 +1,14 @@
 from operator import attrgetter, itemgetter
-from time import sleep
 
 from flask import redirect, render_template, request, url_for, abort
 
-from config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, APP_PORT
-from connectors import *
-from forms import SearchForm, DeleteForm, EditForm
+from pynyaata.config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD
+from pynyaata.connectors import *
+from pynyaata.forms import SearchForm, DeleteForm, EditForm
 
 if MYSQL_ENABLED:
-    from config import db
-    from models import AnimeFolder, AnimeTitle, AnimeLink
+    from pynyaata.config import db
+    from pynyaata.models import AnimeFolder, AnimeTitle, AnimeLink
 
 
 def clean_model(obj):
@@ -197,13 +196,3 @@ def admin_edit(link_id=None):
         link.vf = False
 
     return render_template('admin/edit.html', search_form=SearchForm(), link=link, folders=folders, action_form=form)
-
-
-if __name__ == '__main__':
-    while True:
-        try:
-            app.run('0.0.0.0', APP_PORT, IS_DEBUG)
-        except Exception as e:
-            getLogger().exception(e)
-            sleep(10)
-            pass
