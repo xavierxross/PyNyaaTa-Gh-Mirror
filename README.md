@@ -1,6 +1,8 @@
 # 𝛑 😼 た
 > "PyNyaaTa", Xéfir's personal animes torrent search engine
 
+[![Build Status](https://ci.crystalyx.net/api/badges/Xefir/PyNyaaTa/status.svg)](https://ci.crystalyx.net/Xefir/PyNyaaTa)
+
 I'm lazy and I want to search across severall VF and VOSTFR torrents databases in one click.
 That's the starting point that build this app.
 At first, it was a crappy PHP project without any good future.
@@ -11,10 +13,9 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 ### With Docker
 
 - Install Docker: https://hub.docker.com/search/?type=edition&offering=community
-- Clone this repository
-- Launch a terminal and move into the root of the cloned repository
-- Run `docker-compose build`
-- Run `docker-compose up -d`
+- Be sure to have a MySQL Server installed and running
+- Create a .env like [this one](.env.dist)
+- Run `docker run --env-file .env -p 5000 xefir/pynyaata`
 - The app is accessible at http://localhost:5000
 
 ### Without Docker

@@ -30,7 +30,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s/%s?charset=utf
     db_user, db_password, db_host, db_name
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_POOL_RECYCLE'] = 200
 app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
 app.url_map.strict_slashes = False
 auth = HTTPBasicAuth()
