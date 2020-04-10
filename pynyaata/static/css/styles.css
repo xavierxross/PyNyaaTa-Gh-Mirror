@@ -8,6 +8,10 @@ nav, nav > div {
     align-items: center;
 }
 
+.input, .select select, .textarea {
+    color: black;
+}
+
 a.navbar-item, a.navbar-item:hover {
     color: whitesmoke;
 }
@@ -34,7 +38,6 @@ img.favicon {
 button.fa-button {
     padding: 0;
     cursor: pointer;
-    background: none;
     border: none;
 }
 
