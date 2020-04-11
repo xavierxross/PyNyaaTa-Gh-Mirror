@@ -35,4 +35,7 @@ if db_host:
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_recycle': 200
+    }
     db = SQLAlchemy(app)
