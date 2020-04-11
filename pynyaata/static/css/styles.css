@@ -8,10 +8,6 @@ nav, nav > div {
     align-items: center;
 }
 
-.input, .select select, .textarea {
-    color: black;
-}
-
 a.navbar-item, a.navbar-item:hover {
     color: whitesmoke;
 }
