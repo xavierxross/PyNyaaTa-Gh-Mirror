@@ -1,8 +1,8 @@
-FROM python:alpine
+FROM python:slim
 
 COPY pynyaata /app/pynyaata
 COPY requirements.txt /app
 COPY *.py /app/
 WORKDIR /app
-RUN apk add build-base && pip install -r requirements.txt && apk del build-base
+RUN pip install -r requirements.txt
 CMD ["python", "run.py"]
