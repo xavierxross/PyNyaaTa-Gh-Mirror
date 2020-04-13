@@ -4,5 +4,5 @@ COPY pynyaata /app/pynyaata
 COPY requirements.txt /app
 COPY *.py /app/
 WORKDIR /app
-RUN apk add build-base bash && pip install -r requirements.txt
+RUN apk add build-base && pip install -r requirements.txt && apk del build-base
 CMD ["python", "run.py"]
