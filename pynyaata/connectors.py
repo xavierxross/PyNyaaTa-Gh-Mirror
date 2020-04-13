@@ -6,7 +6,6 @@ from functools import wraps
 from logging import getLogger
 from urllib.parse import quote
 
-import pytz
 from bs4 import BeautifulSoup
 from cloudscraper import create_scraper
 from dateparser import parse
@@ -15,7 +14,6 @@ from requests import RequestException
 from pynyaata.config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
 
 scraper = create_scraper()
-utc = pytz.UTC
 
 
 class ConnectorReturn(Enum):
@@ -254,7 +252,7 @@ class Nyaa(Connector):
                         'link': tds[2].decode_contents().replace('/download/',
                                                                  '%s%s' % (self.base_url, '/download/')),
                         'size': tds[3].string,
-                        'date': utc.localize(datetime.strptime(tds[4].string, '%Y-%m-%d %H:%M')),
+                        'date': datetime.strptime(tds[4].string, '%Y-%m-%d %H:%M'),
                         'seeds': check_seeds,
                         'leechs': tds[6].string,
                         'downloads': check_downloads,
@@ -318,7 +316,7 @@ class Pantsu(Connector):
                         'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
                             'icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
-                        'date': utc.localize(parse(tds[7]['title'])),
+                        'date': parse(tds[7]['title'][:-6]),
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
@@ -387,7 +385,7 @@ class YggTorrent(Connector):
                                     '<i class="fa fa-fw fa-download"></i>'
                                     '</a>' % (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
                             'size': tds[5].string,
-                            'date': utc.localize(datetime.fromtimestamp(int(tds[4].div.string))),
+                            'date': datetime.fromtimestamp(int(tds[4].div.string)),
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
@@ -452,7 +450,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, url['href']),
                         'name': url.get_text(),
                         'type': tds[1].string,
-                        'date': utc.localize(datetime.fromtimestamp(0)),
+                        'date': datetime.fromtimestamp(0),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
             else:
@@ -466,7 +464,7 @@ class AnimeUltime(Connector):
                     'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
                     'name': name[0].string,
                     'type': ani_type[0].string.replace(':', ''),
-                    'date': utc.localize(datetime.fromtimestamp(0)),
+                    'date': datetime.fromtimestamp(0),
                     'class': self.color if link_exist_in_db(href) else ''
                 })
 
@@ -495,7 +493,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, link['href']),
                         'name': link.string,
                         'type': tds[4].string,
-                        'date': utc.localize(parse(h3s[i].string[:-3], languages=['fr'])),
+                        'date': parse(h3s[i].string[:-3], languages=['fr']),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
 
