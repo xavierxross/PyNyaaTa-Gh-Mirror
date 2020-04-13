@@ -108,6 +108,19 @@ def link_exist_in_db(href):
     return False
 
 
+def parse_date(str_to_parse):
+    if str_to_parse is None:
+        return datetime.fromtimestamp(0)
+    elif isinstance(str_to_parse, datetime):
+        return str_to_parse
+    else:
+        date = parse(str_to_parse)
+        if date:
+            return date
+        else:
+            return datetime.fromtimestamp(0)
+
+
 class Connector(ABC):
     @property
     @abstractmethod
@@ -252,7 +265,7 @@ class Nyaa(Connector):
                         'link': tds[2].decode_contents().replace('/download/',
                                                                  '%s%s' % (self.base_url, '/download/')),
                         'size': tds[3].string,
-                        'date': datetime.strptime(tds[4].string, '%Y-%m-%d %H:%M'),
+                        'date': parse_date(tds[4].string),
                         'seeds': check_seeds,
                         'leechs': tds[6].string,
                         'downloads': check_downloads,
@@ -316,7 +329,7 @@ class Pantsu(Connector):
                         'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
                             'icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
-                        'date': parse(tds[7]['title'][:-6]),
+                        'date': parse_date(tds[7]['title'][:-6]),
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
@@ -385,7 +398,7 @@ class YggTorrent(Connector):
                                     '<i class="fa fa-fw fa-download"></i>'
                                     '</a>' % (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
                             'size': tds[5].string,
-                            'date': datetime.fromtimestamp(int(tds[4].div.string)),
+                            'date': parse_date(datetime.fromtimestamp(int(tds[4].div.string))),
                             'seeds': check_seeds,
                             'leechs': tds[8].string,
                             'downloads': check_downloads,
@@ -450,7 +463,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, url['href']),
                         'name': url.get_text(),
                         'type': tds[1].string,
-                        'date': datetime.fromtimestamp(0),
+                        'date': parse_date(None),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
             else:
@@ -464,7 +477,7 @@ class AnimeUltime(Connector):
                     'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
                     'name': name[0].string,
                     'type': ani_type[0].string.replace(':', ''),
-                    'date': datetime.fromtimestamp(0),
+                    'date': parse_date(None),
                     'class': self.color if link_exist_in_db(href) else ''
                 })
 
@@ -493,7 +506,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, link['href']),
                         'name': link.string,
                         'type': tds[4].string,
-                        'date': parse(h3s[i].string[:-3], languages=['fr']),
+                        'date': parse_date(h3s[i].string[:-3]),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
 
