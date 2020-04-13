@@ -1,4 +1,3 @@
-import locale
 import re
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
@@ -9,6 +8,7 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 from cloudscraper import create_scraper
+from dateparser import parse
 from requests import RequestException
 
 from pynyaata.config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
@@ -307,22 +307,6 @@ class Pantsu(Connector):
 
                     valid_trs = valid_trs + 1
                     href = '%s%s' % (self.base_url, url['href'])
-                    splitted_date = re.search(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+)\s(\w+)\s.+', tds[7]['title'])
-
-                    current_locale = locale.getlocale()
-                    locale.setlocale(locale.LC_ALL, ('en_US', 'UTF-8'))
-                    formatted_date = datetime.strptime(
-                        '%s/%s/%s, %s:%s:%s %s' % (
-                            splitted_date.group(1),
-                            splitted_date.group(2),
-                            splitted_date.group(3),
-                            splitted_date.group(4).zfill(2).replace('00', '12'),
-                            splitted_date.group(5),
-                            splitted_date.group(6),
-                            splitted_date.group(7)
-                        ), '%m/%d/%Y, %I:%M:%S %p'
-                    )
-                    locale.setlocale(locale.LC_ALL, current_locale)
 
                     self.data.append({
                         'lang': self.get_lang(url_safe),
@@ -332,7 +316,7 @@ class Pantsu(Connector):
                         'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
                             'icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
-                        'date': formatted_date,
+                        'date': parse(tds[7]['title']),
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
@@ -502,11 +486,6 @@ class AnimeUltime(Connector):
 
                     tds = tr.findAll('td')
                     link = tds[0].a
-
-                    current_locale = locale.getlocale()
-                    locale.setlocale(locale.LC_ALL, ('fr_FR', 'UTF-8'))
-                    release_date = datetime.strptime(h3s[i].string, '%A %d %B %Y : ')
-                    locale.setlocale(locale.LC_ALL, current_locale)
                     href = '%s/%s' % (self.base_url, link['href'])
 
                     self.data.append({
@@ -514,7 +493,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, link['href']),
                         'name': link.string,
                         'type': tds[4].string,
-                        'date': release_date,
+                        'date': parse(h3s[i].string[:-3], languages=['fr']),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
 
