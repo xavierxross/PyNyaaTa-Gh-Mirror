@@ -108,13 +108,13 @@ def link_exist_in_db(href):
     return False
 
 
-def parse_date(str_to_parse):
+def parse_date(str_to_parse, date_format=''):
     if str_to_parse is None:
         return datetime.fromtimestamp(0)
     elif isinstance(str_to_parse, datetime):
         return str_to_parse
     else:
-        date = parse(str_to_parse)
+        date = parse(str_to_parse, date_formats=[date_format])
         if date:
             return date
         else:
@@ -265,7 +265,7 @@ class Nyaa(Connector):
                         'link': tds[2].decode_contents().replace('/download/',
                                                                  '%s%s' % (self.base_url, '/download/')),
                         'size': tds[3].string,
-                        'date': parse_date(tds[4].string),
+                        'date': parse_date(tds[4].string, '%Y-%m-%d %H:%M'),
                         'seeds': check_seeds,
                         'leechs': tds[6].string,
                         'downloads': check_downloads,
@@ -329,7 +329,7 @@ class Pantsu(Connector):
                         'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
                             'icon-floppy', 'fa fa-fw fa-download'),
                         'size': tds[3].string,
-                        'date': parse_date(tds[7]['title'][:-6]),
+                        'date': parse_date(tds[7]['title'][:-6], '%m/%d/%Y, %I:%M:%S %p'),
                         'seeds': check_seeds,
                         'leechs': tds[5].string,
                         'downloads': check_downloads,
@@ -506,7 +506,7 @@ class AnimeUltime(Connector):
                         'href': '%s/%s' % (self.base_url, link['href']),
                         'name': link.string,
                         'type': tds[4].string,
-                        'date': parse_date(h3s[i].string[:-3]),
+                        'date': parse_date(h3s[i].string[:-3], '%A %d %B %Y'),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
 
