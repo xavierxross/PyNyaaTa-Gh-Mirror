@@ -8,6 +8,7 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 from cloudscraper import create_scraper
+from cloudscraper.exceptions import CloudflareException
 from dateparser import parse
 from requests import RequestException
 
@@ -92,7 +93,7 @@ def curl_content(url, params=None, ajax=False):
 
         output = response.text
         http_code = response.status_code
-    except RequestException as e:
+    except (RequestException, CloudflareException) as e:
         output = ''
         http_code = 500
         if IS_DEBUG:
