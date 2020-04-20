@@ -1,4 +1,4 @@
-from pynyaata.config import db
+from .config import db
 
 
 class AnimeFolder(db.Model):

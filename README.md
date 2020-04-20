@@ -38,7 +38,7 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 ## Configuration
 
 All is managed by environment variables.
-Please look into the `.env.dist` file to list all env variables possible.
+Please look into the `.env.dist` file to list all possible environment variables.
 You have to install MariaDB (or any MySQL server) to be able to access the admin panel.
 
 ## Links

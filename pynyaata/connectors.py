@@ -12,7 +12,7 @@ from cloudscraper.exceptions import CloudflareException
 from dateparser import parse
 from requests import RequestException
 
-from pynyaata.config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
+from .config import IS_DEBUG, MYSQL_ENABLED, CACHE_TIMEOUT, BLACKLIST_WORDS
 
 scraper = create_scraper()
 
@@ -104,7 +104,7 @@ def curl_content(url, params=None, ajax=False):
 
 def link_exist_in_db(href):
     if MYSQL_ENABLED:
-        from pynyaata.models import AnimeLink
+        from .models import AnimeLink
         return AnimeLink.query.filter_by(link=href).first()
     return False
 

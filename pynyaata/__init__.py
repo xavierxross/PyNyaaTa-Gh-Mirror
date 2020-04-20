@@ -2,13 +2,13 @@ from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
 
-from pynyaata.config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD
-from pynyaata.connectors import *
-from pynyaata.forms import SearchForm, DeleteForm, EditForm
+from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD
+from .connectors import *
+from .forms import SearchForm, DeleteForm, EditForm
 
 if MYSQL_ENABLED:
-    from pynyaata.config import db
-    from pynyaata.models import AnimeFolder, AnimeTitle, AnimeLink
+    from .config import db
+    from .models import AnimeFolder, AnimeTitle, AnimeLink
 
 
 def clean_model(obj):
