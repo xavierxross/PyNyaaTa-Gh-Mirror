@@ -56,15 +56,14 @@ class Nyaa(ConnectorCore):
                         continue
 
                     valid_trs = valid_trs + 1
-                    href = '%s%s' % (self.base_url, url['href'])
+                    href = self.base_url + url['href']
 
                     self.data.append({
                         'lang': self.get_lang(url_safe),
                         'href': href,
                         'name': url_safe,
-                        'comment': str(urls[0]).replace('/view/',
-                                                        '%s%s' % (self.base_url, '/view/')) if has_comment else '',
-                        'link': tds[2].decode_contents().replace('/download/', '%s%s' % (self.base_url, '/download/')),
+                        'comment': str(urls[0]).replace('/view/', self.base_url + '/view/') if has_comment else '',
+                        'link': tds[2].decode_contents().replace('/download/', self.base_url + '/download/'),
                         'size': tds[3].string,
                         'date': parse_date(tds[4].string, '%Y-%m-%d %H:%M'),
                         'seeds': check_seeds,

@@ -48,7 +48,7 @@ class Pantsu(ConnectorCore):
                         continue
 
                     valid_trs = valid_trs + 1
-                    href = '%s%s' % (self.base_url, url['href'])
+                    href = self.base_url + url['href']
 
                     self.data.append({
                         'lang': self.get_lang(url_safe),
