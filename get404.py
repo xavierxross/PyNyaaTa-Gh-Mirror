@@ -1,5 +1,5 @@
 from pynyaata.config import app
-from pynyaata.connectors import curl_content
+from pynyaata.connectors.core import curl_content
 from pynyaata.models import AnimeLink
 
 app.config['SQLALCHEMY_ECHO'] = False

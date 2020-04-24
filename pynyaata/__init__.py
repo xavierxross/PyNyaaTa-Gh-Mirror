@@ -1,24 +1,17 @@
+from functools import wraps
 from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
 
-from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD
+from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED
 from .connectors import *
+from .connectors.core import ConnectorCore, ConnectorLang, ConnectorReturn
 from .forms import SearchForm, DeleteForm, EditForm
+from .utils import boldify, clean_model
 
 if MYSQL_ENABLED:
     from .config import db
     from .models import AnimeFolder, AnimeTitle, AnimeLink
-
-
-def clean_model(obj):
-    for attr in dir(obj):
-        if not attr.startswith('_') and getattr(obj, attr) is None:
-            try:
-                setattr(obj, attr, '')
-            except AttributeError:
-                pass
-    return obj
 
 
 def mysql_required(f):
@@ -39,11 +32,11 @@ def verify_password(username, password):
 @app.template_filter('boldify')
 def boldify(name):
     query = request.args.get('q', '')
-    name = Connector.boldify(name, query)
+    name = utils.boldify(name, query)
     if MYSQL_ENABLED:
         for keyword in db.session.query(AnimeTitle.keyword.distinct()).all():
             if keyword[0].lower() != query.lower():
-                name = Connector.boldify(name, keyword[0])
+                name = utils.boldify(name, keyword[0])
     return name
 
 
@@ -54,7 +47,7 @@ def flagify(is_vf):
 
 @app.template_filter('colorify')
 def colorify(model):
-    return Connector.get_instance(model.link, model.title.keyword).color
+    return get_instance(model.link, model.title.keyword).color
 
 
 @app.route('/')
@@ -69,34 +62,20 @@ def search():
     if not query:
         return redirect(url_for('home'))
 
-    results = [
-        Nyaa(query).run(),
-        Pantsu(query).run(),
-        YggTorrent(query).run(),
-        YggAnimation(query).run(),
-        AnimeUltime(query).run(),
-    ]
-
-    return render_template('search.html', search_form=SearchForm(), connectors=results,
+    return render_template('search.html', search_form=SearchForm(), connectors=run_all(query),
                            mysql_disabled=not MYSQL_ENABLED)
 
 
 @app.route('/latest')
 @app.route('/latest/<int:page>')
 def latest(page=1):
-    torrents = [
-        Nyaa('', return_type=ConnectorReturn.HISTORY, page=page).run(),
-        Pantsu('', return_type=ConnectorReturn.HISTORY, page=page).run(),
-        YggTorrent('', return_type=ConnectorReturn.HISTORY, page=page).run(),
-        YggAnimation('', return_type=ConnectorReturn.HISTORY, page=page).run(),
-        AnimeUltime('', return_type=ConnectorReturn.HISTORY, page=page).run(),
-    ]
+    torrents = run_all('', return_type=ConnectorReturn.HISTORY, page=page)
 
     results = []
     for torrent in torrents:
         results = results + torrent.data
     for result in results:
-        result['self'] = Connector.get_instance(result['href'], '')
+        result['self'] = get_instance(result['href'], '')
     results.sort(key=itemgetter('date'), reverse=True)
 
     return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page,
