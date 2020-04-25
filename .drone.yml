@@ -15,6 +15,6 @@ steps:
     image: plugins/pypi
     settings:
       username:
-        from_secret: pipy_username
+        from_secret: pypi_username
       password:
-        from_secret: pipy_password
+        from_secret: pypi_password
