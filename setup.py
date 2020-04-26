@@ -2,11 +2,11 @@ from datetime import datetime
 
 from setuptools import setup, find_packages
 
-with open("README.md") as fh:
-    long_description = fh.read()
+with open("README.md") as readme_file:
+    long_description = readme_file.read()
 
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
+with open("requirements.txt") as requirements_file:
+    requirements = requirements_file.read().splitlines()
 
 setup(
     name="PyNyaaTa",
@@ -21,7 +21,7 @@ setup(
     install_requires=requirements,
     include_package_data=True,
     entry_points={
-        'console_scripts': ['pynyaata=pynyaata:run'],
+        "console_scripts": ["pynyaata=pynyaata:run"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
