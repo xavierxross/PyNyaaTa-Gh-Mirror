@@ -1,5 +1,6 @@
 include run.py
 include get404.py
+include README.md
 include requirements.txt
 recursive-include pynyaata/static *
 recursive-include pynyaata/templates *
