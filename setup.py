@@ -20,6 +20,9 @@ setup(
     packages=find_packages(),
     install_requires=requirements,
     include_package_data=True,
+    entry_points={
+        'console_scripts': ['pynyaata=pynyaata:run'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",

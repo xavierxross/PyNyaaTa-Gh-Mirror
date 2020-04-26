@@ -3,7 +3,7 @@ from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
 
-from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED
+from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
 from .connectors import *
 from .connectors.core import ConnectorCore, ConnectorLang, ConnectorReturn
 from .forms import SearchForm, DeleteForm, EditForm
@@ -175,3 +175,7 @@ def admin_edit(link_id=None):
         link.vf = False
 
     return render_template('admin/edit.html', search_form=SearchForm(), link=link, folders=folders, action_form=form)
+
+
+def run():
+    app.run('0.0.0.0', APP_PORT, IS_DEBUG)

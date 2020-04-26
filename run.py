@@ -1,3 +1,5 @@
-from pynyaata.config import app, APP_PORT, IS_DEBUG
+#!/usr/bin/env python3
+from pynyaata import run
 
-app.run('0.0.0.0', APP_PORT, IS_DEBUG)
+if __name__ == "__main__":
+    run()
