@@ -3,7 +3,7 @@ from datetime import datetime
 
 from dateparser import parse
 
-from . import MYSQL_ENABLED
+from .config import MYSQL_ENABLED, BLACKLIST_WORDS
 
 
 def link_exist_in_db(href):
@@ -41,3 +41,7 @@ def clean_model(obj):
             except AttributeError:
                 pass
     return obj
+
+
+def check_blacklist_words(url):
+    return any(word.lower() in url.lower() for word in BLACKLIST_WORDS)

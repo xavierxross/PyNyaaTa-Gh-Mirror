@@ -1,8 +1,7 @@
 from bs4 import BeautifulSoup
 
 from .core import ConnectorCore, ConnectorReturn, ConnectorCache, curl_content
-from ..config import BLACKLIST_WORDS
-from ..utils import parse_date, link_exist_in_db
+from ..utils import parse_date, link_exist_in_db, check_blacklist_words
 
 
 class Nyaa(ConnectorCore):
@@ -52,7 +51,7 @@ class Nyaa(ConnectorCore):
 
                     url_safe = url.get_text()
 
-                    if any(word.lower() in url_safe.lower() for word in BLACKLIST_WORDS):
+                    if check_blacklist_words(url_safe):
                         continue
 
                     valid_trs = valid_trs + 1
