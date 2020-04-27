@@ -4,12 +4,13 @@ from flask import Flask
 from flask.cli import load_dotenv
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash
 
 load_dotenv()
 
 IS_DEBUG = environ.get('FLASK_ENV', 'production') == 'development'
 ADMIN_USERNAME = environ.get('ADMIN_USERNAME', 'admin')
-ADMIN_PASSWORD = environ.get('ADMIN_PASSWORD', 'secret')
+ADMIN_PASSWORD = generate_password_hash(environ.get('ADMIN_PASSWORD', 'secret'))
 APP_PORT = environ.get('FLASK_PORT', 5000)
 CACHE_TIMEOUT = environ.get('CACHE_TIMEOUT', 60 * 60)
 BLACKLIST_WORDS = environ.get('BLACKLIST_WORDS', '').split(',')

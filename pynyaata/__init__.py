@@ -2,6 +2,7 @@ from functools import wraps
 from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
+from werkzeug.security import check_password_hash
 
 from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
 from .connectors import *
@@ -26,7 +27,7 @@ def mysql_required(f):
 
 @auth.verify_password
 def verify_password(username, password):
-    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
+    return username == ADMIN_USERNAME and check_password_hash(ADMIN_PASSWORD, password)
 
 
 @app.template_filter('boldify')

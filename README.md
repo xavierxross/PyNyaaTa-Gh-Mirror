@@ -20,10 +20,8 @@ After a good rewrite in Python, it's time to show it to the public, and here it 
 
 - Install Python 3: https://www.python.org/downloads/
 - Install Pip: https://pip.pypa.io/en/stable/installing/
-- Clone this repository
-- Launch a terminal and move into the root of the cloned repository
-- Run `pip install -r requirements.txt`
-- Run `python3 run.py` or simply `pynyaata`
+- Run `pip install pynyaata`
+- Run `pynyaata`
 - The app is accessible at http://localhost:5000
 
 ## Features
