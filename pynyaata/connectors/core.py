@@ -11,7 +11,9 @@ from requests import RequestException
 
 from ..config import CACHE_TIMEOUT, IS_DEBUG
 
-scraper = create_scraper()
+scraper = create_scraper(browser={
+    'custom': 'ScraperBot/1.0'
+})
 
 
 class ConnectorReturn(Enum):
