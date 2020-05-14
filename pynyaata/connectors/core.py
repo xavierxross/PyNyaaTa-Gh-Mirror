@@ -5,13 +5,13 @@ from enum import Enum
 from functools import wraps
 from logging import getLogger
 
-from cloudscraper import create_scraper
 from cloudscraper.exceptions import CloudflareException
 from requests import RequestException
 
-from ..config import CACHE_TIMEOUT, IS_DEBUG
+from .cloudscraper import CloudScraperWrapper
+from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT
 
-scraper = create_scraper(browser={
+scraper = CloudScraperWrapper.create_scraper(browser={
     'custom': 'ScraperBot/1.0'
 })
 
@@ -85,9 +85,9 @@ def curl_content(url, params=None, ajax=False):
 
     try:
         if params is not None:
-            response = scraper.post(url, params, timeout=5, headers=headers)
+            response = scraper.post(url, params, timeout=REQUESTS_TIMEOUT, headers=headers)
         else:
-            response = scraper.get(url, timeout=5, headers=headers)
+            response = scraper.get(url, timeout=REQUESTS_TIMEOUT, headers=headers)
 
         output = response.text
         http_code = response.status_code

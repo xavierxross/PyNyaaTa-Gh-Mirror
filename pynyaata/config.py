@@ -13,6 +13,7 @@ ADMIN_USERNAME = environ.get('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD = generate_password_hash(environ.get('ADMIN_PASSWORD', 'secret'))
 APP_PORT = environ.get('FLASK_PORT', 5000)
 CACHE_TIMEOUT = environ.get('CACHE_TIMEOUT', 60 * 60)
+REQUESTS_TIMEOUT = environ.get('REQUESTS_TIMEOUT', 5)
 BLACKLIST_WORDS = environ.get('BLACKLIST_WORDS', '').split(',') if environ.get('BLACKLIST_WORDS', '') else []
 MYSQL_ENABLED = False
 
