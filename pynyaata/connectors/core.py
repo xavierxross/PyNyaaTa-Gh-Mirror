@@ -5,7 +5,7 @@ from enum import Enum
 from functools import wraps
 from logging import getLogger
 
-from cloudscraper.exceptions import CloudflareException
+from cloudscraper.exceptions import CloudflareException, reCaptchaException
 from requests import RequestException
 
 from .cloudscraper import CloudScraperWrapper
@@ -91,7 +91,7 @@ def curl_content(url, params=None, ajax=False):
 
         output = response.text
         http_code = response.status_code
-    except (RequestException, CloudflareException) as e:
+    except (RequestException, CloudflareException, reCaptchaException) as e:
         output = ''
         http_code = 500
         if IS_DEBUG:
