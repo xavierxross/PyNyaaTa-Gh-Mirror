@@ -34,8 +34,9 @@ class AnimeUltime(ConnectorCore):
         if response['http_code'] == 200:
             html = BeautifulSoup(response['output'], 'html.parser')
             title = html.select('div.title')
+            player = html.select('div.AUVideoPlayer')
 
-            if 'Recherche' in title[0].string:
+            if 'Recherche' in title[0].decode_contents():
                 trs = html.select('table.jtable tr')
 
                 for i, tr in enumerate(trs):
@@ -58,8 +59,7 @@ class AnimeUltime(ConnectorCore):
                         'date': parse_date(None),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
-            else:
-                player = html.select('div.AUVideoPlayer')
+            elif len(player) > 0:
                 name = html.select('h1')
                 ani_type = html.select('div.titre')
                 href = '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie'])
