@@ -13,10 +13,7 @@ from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_K
 
 scraper = CloudScraperWrapper.create_scraper(browser={
     'custom': 'ScraperBot/1.0'
-}, recaptcha={
-    'provider': '2captcha',
-    'api_key': TWOCAPTCHA_API_KEY
-})
+}, recaptcha=TWOCAPTCHA_API_KEY)
 
 
 class ConnectorReturn(Enum):
