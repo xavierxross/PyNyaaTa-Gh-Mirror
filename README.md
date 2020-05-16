@@ -1,4 +1,4 @@
-# 𝛑 😼 た
+# π 😼た
 > "PyNyaaTa", Xéfir's personal animes torrent search engine
 
 [![Build Status](https://ci.crystalyx.net/api/badges/Xefir/PyNyaaTa/status.svg)](https://ci.crystalyx.net/Xefir/PyNyaaTa)

@@ -13,7 +13,7 @@ setup(
     version=datetime.now().strftime("%Y%m%d%H%M"),
     author="Xéfir Destiny",
     author_email="xefir@crystalyx.net",
-    description="𝛑 😼 た, Xéfir's personal animes torrent search engine",
+    description="π 😼た, Xéfir's personal animes torrent search engine",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://git.crystalyx.net/Xefir/PyNyaaTa",

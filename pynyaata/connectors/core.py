@@ -9,10 +9,13 @@ from cloudscraper.exceptions import CloudflareException
 from requests import RequestException
 
 from .cloudscraper import CloudScraperWrapper
-from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT
+from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_KEY
 
 scraper = CloudScraperWrapper.create_scraper(browser={
     'custom': 'ScraperBot/1.0'
+}, recaptcha={
+    'provider': '2captcha',
+    'api_key': TWOCAPTCHA_API_KEY
 })
 
 
