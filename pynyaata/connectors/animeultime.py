@@ -36,7 +36,7 @@ class AnimeUltime(ConnectorCore):
             title = html.select('div.title')
             player = html.select('div.AUVideoPlayer')
 
-            if 'Recherche' in title[0].decode_contents():
+            if 'Recherche' in title[0].get_text():
                 trs = html.select('table.jtable tr')
 
                 for i, tr in enumerate(trs):
@@ -55,7 +55,7 @@ class AnimeUltime(ConnectorCore):
                         'lang': ConnectorLang.JP,
                         'href': '%s/%s' % (self.base_url, url['href']),
                         'name': url.get_text(),
-                        'type': tds[1].string,
+                        'type': tds[1].get_text(),
                         'date': parse_date(None),
                         'class': self.color if link_exist_in_db(href) else ''
                     })
@@ -67,8 +67,8 @@ class AnimeUltime(ConnectorCore):
                 self.data.append({
                     'lang': ConnectorLang.JP,
                     'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
-                    'name': name[0].string,
-                    'type': ani_type[0].string.replace(':', ''),
+                    'name': name[0].get_text(),
+                    'type': ani_type[0].get_text().replace(':', ''),
                     'date': parse_date(None),
                     'class': self.color if link_exist_in_db(href) else ''
                 })
@@ -96,8 +96,8 @@ class AnimeUltime(ConnectorCore):
                     self.data.append({
                         'lang': ConnectorLang.JP,
                         'href': '%s/%s' % (self.base_url, link['href']),
-                        'name': link.string,
-                        'type': tds[4].string,
+                        'name': link.get_text(),
+                        'type': tds[4].get_text(),
                         'date': parse_date(h3s[i].string[:-3], '%A %d %B %Y'),
                         'class': self.color if link_exist_in_db(href) else ''
                     })

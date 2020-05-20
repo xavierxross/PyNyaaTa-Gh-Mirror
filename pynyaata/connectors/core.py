@@ -5,13 +5,13 @@ from enum import Enum
 from functools import wraps
 from logging import getLogger
 
+from cloudscraper import create_scraper
 from cloudscraper.exceptions import CloudflareException, reCaptchaException
 from requests import RequestException
 
-from .cloudscraper import CloudScraperWrapper
 from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_KEY
 
-scraper = CloudScraperWrapper.create_scraper(browser={
+scraper = create_scraper(browser={
     'custom': 'ScraperBot/1.0'
 }, recaptcha=TWOCAPTCHA_API_KEY)
 

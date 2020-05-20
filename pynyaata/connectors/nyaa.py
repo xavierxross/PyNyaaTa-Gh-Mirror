@@ -36,8 +36,8 @@ class Nyaa(ConnectorCore):
                     continue
 
                 tds = tr.findAll('td')
-                check_downloads = int(tds[7].string)
-                check_seeds = int(tds[5].string)
+                check_downloads = int(tds[7].get_text())
+                check_seeds = int(tds[5].get_text())
 
                 if check_downloads or check_seeds:
                     urls = tds[1].findAll('a')
@@ -63,10 +63,10 @@ class Nyaa(ConnectorCore):
                         'name': url_safe,
                         'comment': str(urls[0]).replace('/view/', self.base_url + '/view/') if has_comment else '',
                         'link': tds[2].decode_contents().replace('/download/', self.base_url + '/download/'),
-                        'size': tds[3].string,
-                        'date': parse_date(tds[4].string, '%Y-%m-%d %H:%M'),
+                        'size': tds[3].get_text(),
+                        'date': parse_date(tds[4].get_text(), '%Y-%m-%d %H:%M'),
                         'seeds': check_seeds,
-                        'leechs': tds[6].string,
+                        'leechs': tds[6].get_text(),
                         'downloads': check_downloads,
                         'class': self.color if link_exist_in_db(href) else 'is-%s' % tr['class'][0]
                     })

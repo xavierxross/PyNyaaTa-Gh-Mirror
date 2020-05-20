@@ -5,7 +5,7 @@ Flask-WTF==0.14.3
 WTForms==2.3.1
 PyMySQL==0.9.3
 requests==2.23.0
-beautifulsoup4==4.9.0
+beautifulsoup4==4.9.1
 python-dotenv==0.13.0
 cloudscraper==1.2.38
 polling==0.3.1

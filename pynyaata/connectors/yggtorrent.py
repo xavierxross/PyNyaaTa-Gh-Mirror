@@ -44,8 +44,8 @@ class YggTorrent(ConnectorCore):
                         continue
 
                     tds = tr.findAll('td')
-                    check_downloads = int(tds[6].string)
-                    check_seeds = int(tds[7].string)
+                    check_downloads = int(tds[6].get_text())
+                    check_seeds = int(tds[7].get_text())
 
                     if check_downloads or check_seeds:
                         url = tds[1].a
@@ -65,10 +65,10 @@ class YggTorrent(ConnectorCore):
                             'link': '<a href="%s/engine/download_torrent?id=%s">'
                                     '<i class="fa fa-fw fa-download"></i>'
                                     '</a>' % (self.base_url, re.search(r'/(\d+)', url['href']).group(1)),
-                            'size': tds[5].string,
-                            'date': parse_date(datetime.fromtimestamp(int(tds[4].div.string))),
+                            'size': tds[5].get_text(),
+                            'date': parse_date(datetime.fromtimestamp(int(tds[4].div.get_text()))),
                             'seeds': check_seeds,
-                            'leechs': tds[8].string,
+                            'leechs': tds[8].get_text(),
                             'downloads': check_downloads,
                             'class': self.color if link_exist_in_db(quote(url['href'], '/+:')) else ''
                         })

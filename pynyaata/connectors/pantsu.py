@@ -36,8 +36,8 @@ class Pantsu(ConnectorCore):
                     continue
 
                 tds = tr.findAll('td')
-                check_downloads = int(tds[6].string.replace('-', '0'))
-                check_seeds = int(tds[4].string.replace('-', '0'))
+                check_downloads = int(tds[6].get_text().replace('-', '0'))
+                check_seeds = int(tds[4].get_text().replace('-', '0'))
 
                 if check_downloads or check_seeds:
                     url = tds[1].a
@@ -56,10 +56,10 @@ class Pantsu(ConnectorCore):
                         'comment': '',
                         'link': tds[2].decode_contents().replace('icon-magnet', 'fa fa-fw fa-magnet').replace(
                             'icon-floppy', 'fa fa-fw fa-download'),
-                        'size': tds[3].string,
+                        'size': tds[3].get_text(),
                         'date': parse_date(tds[7]['title'][:-6], '%m/%d/%Y, %I:%M:%S %p'),
                         'seeds': check_seeds,
-                        'leechs': tds[5].string,
+                        'leechs': tds[5].get_text(),
                         'downloads': check_downloads,
                         'class': self.color if link_exist_in_db(href) else 'is-%s' % tr['class'][0]
                     })

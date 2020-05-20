@@ -96,9 +96,3 @@ label.checkbox {
 .table.is-hoverable tbody tr:not(.is-selected):hover {
     background-color: #f1f1f1 !important;
 }
-
-@media screen and (min-width: 1088px) {
-    [data-tooltip]:hover::before, [data-tooltip]:hover::after {
-        display: none !important;
-    }
-}
