@@ -13,7 +13,7 @@ from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_K
 
 scraper = create_scraper(browser={
     'custom': 'ScraperBot/1.0'
-}, recaptcha=TWOCAPTCHA_API_KEY)
+}, interpreter='js2py', recaptcha=TWOCAPTCHA_API_KEY)
 
 
 class ConnectorReturn(Enum):
