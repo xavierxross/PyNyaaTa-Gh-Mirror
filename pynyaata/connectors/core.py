@@ -6,7 +6,7 @@ from functools import wraps
 from logging import getLogger
 
 from cloudscraper import create_scraper
-from cloudscraper.exceptions import CloudflareException, reCaptchaException
+from cloudscraper.exceptions import CloudflareException, CaptchaException
 from requests import RequestException
 
 from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_KEY
@@ -91,7 +91,7 @@ def curl_content(url, params=None, ajax=False):
 
         output = response.text
         http_code = response.status_code
-    except (RequestException, CloudflareException, reCaptchaException) as e:
+    except (RequestException, CloudflareException, CaptchaException) as e:
         output = ''
         http_code = 500
         if IS_DEBUG:
