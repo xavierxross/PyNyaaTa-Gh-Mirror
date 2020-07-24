@@ -94,8 +94,7 @@ def curl_content(url, params=None, ajax=False):
     except (RequestException, CloudflareException, CaptchaException) as e:
         output = ''
         http_code = 500
-        if IS_DEBUG:
-            getLogger().exception(e)
+        getLogger().exception(e)
 
     return {'http_code': http_code, 'output': output}
 
