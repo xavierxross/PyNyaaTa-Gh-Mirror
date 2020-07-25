@@ -77,7 +77,7 @@ class Cache:
 ConnectorCache = Cache()
 
 
-def curl_content(url, params=None, ajax=False):
+def curl_content(url, params=None, ajax=False, debug=True):
     if ajax:
         headers = {'X-Requested-With': 'XMLHttpRequest'}
     else:
@@ -94,7 +94,8 @@ def curl_content(url, params=None, ajax=False):
     except (RequestException, CloudflareException, CaptchaException) as e:
         output = ''
         http_code = 500
-        getLogger().exception(e)
+        if debug:
+            getLogger().exception(e)
 
     return {'http_code': http_code, 'output': output}
 
