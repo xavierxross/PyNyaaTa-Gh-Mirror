@@ -146,18 +146,21 @@ def admin_edit(link_id=None):
     form = EditForm(request.form)
 
     if form.validate_on_submit():
+        # Folder
         folder = AnimeFolder.query.filter_by(name=form.folder.data).first()
         folder = folder if folder else AnimeFolder()
         folder.name = form.folder.data
         db.session.add(folder)
-        title = AnimeTitle.query.filter_by(name=form.name.data).first()
+        # Title
+        link = AnimeLink.query.filter_by(id=form.id.data).first()
+        link = link if link else AnimeLink()
+        title = AnimeTitle.query.filter_by(id=link.title_id).first()
         title = title if title else AnimeTitle()
         title.folder_id = folder.id
         title.name = form.name.data
         title.keyword = form.keyword.data.lower() if form.keyword.data else title.keyword
         db.session.add(title)
-        link = AnimeLink.query.filter_by(id=form.id.data).first()
-        link = link if link else AnimeLink()
+        # Link
         link.title_id = title.id
         link.link = form.link.data
         link.season = form.season.data
