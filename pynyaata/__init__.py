@@ -106,6 +106,17 @@ def list_animes(url_filters='nyaa,yggtorrent'):
     return render_template('list.html', search_form=SearchForm(), titles=results)
 
 
+def remove_garbage(link):
+    title = link.title
+    folder = title.folder
+    if not len(title.links):
+        db.session.delete(title)
+        db.session.commit()
+    if not len(folder.titles):
+        db.session.delete(folder)
+        db.session.commit()
+
+
 @app.route('/admin', methods=['GET', 'POST'])
 @mysql_required
 @auth.login_required
@@ -120,17 +131,10 @@ def admin():
     if form.validate_on_submit():
         link = AnimeLink.query.filter_by(id=form.id.data).first()
         if link:
-            title = link.title
-            folder = title.folder
             db.session.delete(link)
             db.session.commit()
-            if not len(title.links):
-                db.session.delete(title)
-                db.session.commit()
-            if not len(folder.titles):
-                db.session.delete(folder)
-                db.session.commit()
-            form.message = '%s (%s) has been successfully deleted' % (title.name, link.season)
+            remove_garbage(link)
+            form.message = '%s (%s) has been successfully deleted' % (link.title.name, link.season)
         else:
             form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
 
@@ -155,6 +159,7 @@ def admin_edit(link_id=None):
         link = AnimeLink.query.filter_by(id=form.id.data).first()
         link = link if link else AnimeLink()
         title = AnimeTitle.query.filter_by(id=link.title_id).first()
+        title = title if title else AnimeTitle.query.filter_by(name=form.name.data).first()
         title = title if title else AnimeTitle()
         title.folder_id = folder.id
         title.name = form.name.data
@@ -168,6 +173,7 @@ def admin_edit(link_id=None):
         link.vf = form.is_vf.data
         db.session.add(link)
         db.session.commit()
+        remove_garbage(link)
         return redirect(url_for('admin'))
 
     if link_id:
