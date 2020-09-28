@@ -173,7 +173,6 @@ def admin_edit(link_id=None):
         link.vf = form.is_vf.data
         db.session.add(link)
         db.session.commit()
-        remove_garbage(link)
         return redirect(url_for('admin'))
 
     if link_id:
