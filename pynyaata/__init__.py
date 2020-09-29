@@ -128,8 +128,8 @@ def admin():
         if link:
             db.session.delete(link)
             db.session.commit()
-            remove_garbage(link)
             form.message = '%s (%s) has been successfully deleted' % (link.title.name, link.season)
+            remove_garbage(link)
         else:
             form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
 
