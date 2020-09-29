@@ -155,6 +155,7 @@ def admin_edit(link_id=None):
         folder = folder if folder else AnimeFolder()
         folder.name = form.folder.data
         db.session.add(folder)
+        db.session.commit()
         # Title
         link = AnimeLink.query.filter_by(id=form.id.data).first()
         link = link if link else AnimeLink()
@@ -165,6 +166,7 @@ def admin_edit(link_id=None):
         title.name = form.name.data
         title.keyword = form.keyword.data.lower() if form.keyword.data else title.keyword
         db.session.add(title)
+        db.session.commit()
         # Link
         link.title_id = title.id
         link.link = form.link.data
@@ -173,6 +175,7 @@ def admin_edit(link_id=None):
         link.vf = form.is_vf.data
         db.session.add(link)
         db.session.commit()
+        remove_garbage(link)
         return redirect(url_for('admin'))
 
     if link_id:
