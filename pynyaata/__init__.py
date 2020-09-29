@@ -121,11 +121,6 @@ def remove_garbage(link):
 @mysql_required
 @auth.login_required
 def admin():
-    folders = AnimeFolder.query.all()
-    for folder in folders:
-        for title in folder.titles:
-            title.links.sort(key=attrgetter('season'))
-        folder.titles.sort(key=attrgetter('name'))
     form = DeleteForm(request.form)
 
     if form.validate_on_submit():
@@ -137,6 +132,12 @@ def admin():
             form.message = '%s (%s) has been successfully deleted' % (link.title.name, link.season)
         else:
             form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
+
+    folders = AnimeFolder.query.all()
+    for folder in folders:
+        for title in folder.titles:
+            title.links.sort(key=attrgetter('season'))
+        folder.titles.sort(key=attrgetter('name'))
 
     return render_template('admin/list.html', search_form=SearchForm(), folders=folders, action_form=form)
 
