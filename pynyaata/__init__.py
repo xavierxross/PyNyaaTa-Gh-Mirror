@@ -108,13 +108,9 @@ def list_animes(url_filters='nyaa,yggtorrent'):
 
 def remove_garbage(link):
     title = link.title
-    if title:
-        if not len(title.links):
-            db.session.delete(title)
-            db.session.commit()
-        if not len(title.folder.titles):
-            db.session.delete(title.folder)
-            db.session.commit()
+    if title and not len(title.links):
+        db.session.delete(title)
+        db.session.commit()
 
 
 @app.route('/admin', methods=['GET', 'POST'])
