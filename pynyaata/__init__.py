@@ -122,9 +122,9 @@ def admin():
     if form.validate_on_submit():
         link = AnimeLink.query.filter_by(id=form.id.data).first()
         if link:
+            form.message = '%s (%s) has been successfully deleted' % (link.title.name, link.season)
             db.session.delete(link)
             db.session.commit()
-            form.message = '%s (%s) has been successfully deleted' % (link.title.name, link.season)
             remove_garbage(link)
         else:
             form._errors = {'id': ['Id %s was not found in the database' % form.id.data]}
