@@ -75,6 +75,9 @@ class YggTorrent(ConnectorCore):
 
                 self.on_error = False
                 self.is_more = valid_trs and valid_trs is not len(trs) - 1
+            elif response['http_code'] == 500:
+                self.on_error = False
+                self.is_more = True
 
 
 class YggAnimation(YggTorrent):

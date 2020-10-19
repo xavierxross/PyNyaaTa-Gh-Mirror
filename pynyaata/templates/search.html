@@ -25,11 +25,11 @@
         <tbody>
 
         {% for connector in connectors %}
-            {% for torrent in connector.data %}
-                {% if not loop.index0 %}
-                    <th colspan="8">{{ connector.title }}</th>
-                {% endif %}
+            {% if connector.data|length > 0 or connector.is_more %}
+                <th colspan="8">{{ connector.title }}</th>
+            {% endif %}
 
+            {% for torrent in connector.data %}
                 <tr class="{{ torrent.class }}">
                     <td>
                         {{ torrent.lang.value }}
