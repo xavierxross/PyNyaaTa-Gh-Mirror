@@ -11,9 +11,7 @@ from requests import RequestException
 
 from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_KEY
 
-scraper = create_scraper(browser={
-    'custom': 'ScraperBot/1.0'
-}, interpreter='js2py', captcha=TWOCAPTCHA_API_KEY, debug=IS_DEBUG)
+scraper = create_scraper(interpreter='js2py', captcha=TWOCAPTCHA_API_KEY, debug=IS_DEBUG)
 
 
 class ConnectorReturn(Enum):
