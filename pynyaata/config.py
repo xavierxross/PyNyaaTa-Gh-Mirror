@@ -17,11 +17,6 @@ REQUESTS_TIMEOUT = int(environ.get('REQUESTS_TIMEOUT', 5))
 BLACKLIST_WORDS = environ.get('BLACKLIST_WORDS', '').split(',') if environ.get('BLACKLIST_WORDS', '') else []
 MYSQL_ENABLED = False
 
-TWOCAPTCHA_API_KEY = {
-    'provider': '2captcha',
-    'api_key': environ.get('2CAPTCHA_API_KEY')
-} if environ.get('2CAPTCHA_API_KEY') else None
-
 app = Flask(__name__)
 app.name = 'PyNyaaTa'
 app.secret_key = urandom(24).hex()

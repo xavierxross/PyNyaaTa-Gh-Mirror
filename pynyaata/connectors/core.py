@@ -9,9 +9,9 @@ from cloudscraper import create_scraper
 from cloudscraper.exceptions import CloudflareException, CaptchaException
 from requests import RequestException
 
-from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, TWOCAPTCHA_API_KEY
+from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT
 
-scraper = create_scraper(interpreter='js2py', captcha=TWOCAPTCHA_API_KEY, debug=IS_DEBUG)
+scraper = create_scraper(interpreter='js2py', debug=IS_DEBUG)
 
 
 class ConnectorReturn(Enum):
