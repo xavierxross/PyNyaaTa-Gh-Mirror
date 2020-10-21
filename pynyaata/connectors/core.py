@@ -3,13 +3,16 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from functools import wraps
+from json import dumps, loads
 from logging import getLogger
+from urllib.parse import urlencode
 
+import requests
 from cloudscraper import create_scraper
 from cloudscraper.exceptions import CloudflareException, CaptchaException
 from requests import RequestException
 
-from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT
+from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, CLOUDPROXY_ENDPOINT
 
 scraper = create_scraper(interpreter='js2py', debug=IS_DEBUG)
 
@@ -76,22 +79,41 @@ ConnectorCache = Cache()
 
 
 def curl_content(url, params=None, ajax=False, debug=True):
+    output = ''
+    http_code = 500
+    method = 'post' if (params is not None) else 'get'
+
     if ajax:
         headers = {'X-Requested-With': 'XMLHttpRequest'}
     else:
         headers = {}
 
     try:
-        if params is not None:
+        if method == 'post':
             response = scraper.post(url, params, timeout=REQUESTS_TIMEOUT, headers=headers)
         else:
             response = scraper.get(url, timeout=REQUESTS_TIMEOUT, headers=headers)
 
         output = response.text
         http_code = response.status_code
-    except (RequestException, CloudflareException, CaptchaException) as e:
-        output = ''
-        http_code = 500
+    except CloudflareException as e:
+        if CLOUDPROXY_ENDPOINT:
+            headers['Content-Type'] = 'application/x-www-form-urlencoded' if (method == 'post') else 'application/json'
+
+            json_response = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
+                'cmd': 'request.%s' % method,
+                'url': url,
+                'userAgent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.0 Safari/537.36',
+                'postData': '%s' % urlencode(params) if (method == 'post') else ''
+            }))
+
+            response = loads(json_response.text)
+            output = response['solution']['response']
+            http_code = json_response.status_code
+
+            if debug and http_code != 200:
+                getLogger().exception('%s\n\n%s' % (str(e), json_response.text))
+    except (RequestException, CaptchaException) as e:
         if debug:
             getLogger().exception(e)
 

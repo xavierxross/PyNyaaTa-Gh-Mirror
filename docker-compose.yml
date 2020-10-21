@@ -9,6 +9,7 @@ services:
     working_dir: /app
     depends_on:
       - db
+      - cloudproxy
     env_file:
       - .env.dist
       - .env
@@ -24,3 +25,11 @@ services:
       - .env
     volumes:
       - ./.db:/var/lib/mysql
+
+  cloudproxy:
+    image: jbouhd/cloudproxy
+    ports:
+      - "8191:8191"
+    env_file:
+      - .env.dist
+      - .env

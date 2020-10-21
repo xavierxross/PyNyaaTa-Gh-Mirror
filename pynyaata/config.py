@@ -15,6 +15,7 @@ APP_PORT = int(environ.get('FLASK_PORT', 5000))
 CACHE_TIMEOUT = int(environ.get('CACHE_TIMEOUT', 60 * 60))
 REQUESTS_TIMEOUT = int(environ.get('REQUESTS_TIMEOUT', 5))
 BLACKLIST_WORDS = environ.get('BLACKLIST_WORDS', '').split(',') if environ.get('BLACKLIST_WORDS', '') else []
+CLOUDPROXY_ENDPOINT = environ.get('CLOUDPROXY_ENDPOINT')
 MYSQL_ENABLED = False
 
 app = Flask(__name__)
@@ -36,7 +37,7 @@ if db_host:
         db_user, db_password, db_host, db_name
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
+    app.config['SQLALCHEMY_ECHO'] = False
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_recycle': 200
     }
