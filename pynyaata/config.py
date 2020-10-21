@@ -37,7 +37,7 @@ if db_host:
         db_user, db_password, db_host, db_name
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['SQLALCHEMY_ECHO'] = False
+    app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_recycle': 200
     }
