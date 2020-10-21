@@ -15,6 +15,7 @@ from requests import RequestException
 from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, CLOUDPROXY_ENDPOINT
 
 scraper = create_scraper(interpreter='js2py', debug=IS_DEBUG)
+cloudproxy_session = None
 
 
 class ConnectorReturn(Enum):
@@ -98,11 +99,20 @@ def curl_content(url, params=None, ajax=False, debug=True):
         http_code = response.status_code
     except CloudflareException as e:
         if CLOUDPROXY_ENDPOINT:
+            nonlocal cloudproxy_session
+            if not cloudproxy_session:
+                json_session = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
+                    'cmd': 'sessions.create'
+                }))
+                response_session = loads(json_session.text)
+                cloudproxy_session = response_session['session']
+
             headers['Content-Type'] = 'application/x-www-form-urlencoded' if (method == 'post') else 'application/json'
 
             json_response = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
                 'cmd': 'request.%s' % method,
                 'url': url,
+                'session': cloudproxy_session,
                 'userAgent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.0 Safari/537.36',
                 'postData': '%s' % urlencode(params) if (method == 'post') else ''
             }))
