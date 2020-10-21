@@ -117,9 +117,10 @@ def curl_content(url, params=None, ajax=False, debug=True):
                 'postData': '%s' % urlencode(params) if (method == 'post') else ''
             }))
 
-            response = loads(json_response.text)
-            output = response['solution']['response']
             http_code = json_response.status_code
+            response = loads(json_response.text)
+            if 'solution' in response:
+                output = response['solution']['response']
 
             if debug and http_code != 200:
                 getLogger().exception('%s\n\n%s' % (str(e), json_response.text))
