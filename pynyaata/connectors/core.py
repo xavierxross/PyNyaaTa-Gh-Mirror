@@ -99,7 +99,7 @@ def curl_content(url, params=None, ajax=False, debug=True):
         http_code = response.status_code
     except CloudflareException as e:
         if CLOUDPROXY_ENDPOINT:
-            nonlocal cloudproxy_session
+            global cloudproxy_session
             if not cloudproxy_session:
                 json_session = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
                     'cmd': 'sessions.create'
