@@ -22,5 +22,5 @@ class EditForm(FlaskForm):
     link = URLField('link', validators=[DataRequired()])
     season = StringField('season', validators=[DataRequired()])
     comment = StringField('comment')
-    keyword = StringField('keyword')
+    keyword = StringField('keyword', validators=[DataRequired()])
     is_vf = BooleanField('is_vf')
