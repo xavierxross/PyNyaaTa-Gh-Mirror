@@ -64,3 +64,4 @@ If you use PyNyaaTa with Docker and the `docker-compose.yml` from this repositor
 - My other projects: https://git.crystalyx.net/Xefir
 - Docker hub: https://hub.docker.com/r/xefir/pynyaata
 - Donations: https://paypal.me/Xefir
+
