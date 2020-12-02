@@ -96,3 +96,9 @@ label.checkbox {
 .table.is-hoverable tbody tr:not(.is-selected):hover {
     background-color: #f1f1f1 !important;
 }
+
+@media (prefers-color-scheme: dark) {
+    .table.is-hoverable tbody tr:not(.is-selected):hover {
+        background-color: #333 !important;
+    }
+}
