@@ -1,3 +1,23 @@
+html {
+    height: 100%;
+}
+
+body {
+    position: relative;
+    min-height: 100%;
+    padding-bottom: 1rem;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-size: small;
+    margin: 0.5rem;
+    color: #7a7a7a;
+}
+
 section {
     overflow-x: auto;
     padding-top: 2rem !important;
@@ -89,7 +109,7 @@ label.checkbox {
     white-space: nowrap;
 }
 
-#quick_scroll {
+.quick-scroll {
     margin-bottom: 1rem;
 }
 
