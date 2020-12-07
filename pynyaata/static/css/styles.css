@@ -121,8 +121,4 @@ label.checkbox {
     .table.is-hoverable tbody tr:not(.is-selected):hover {
         background-color: #333 !important;
     }
-
-    .table td, .table th {
-        border-color: #363636 !important;
-    }
 }
