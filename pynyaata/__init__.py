@@ -3,7 +3,7 @@ from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
 
-import utils
+from . import utils
 from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
 from .connectors import get_instance, run_all
 from .connectors.core import ConnectorLang, ConnectorReturn
