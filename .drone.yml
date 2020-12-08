@@ -1,5 +1,6 @@
 kind: pipeline
 name: default
+type: docker
 
 steps:
   - name: docker
@@ -18,3 +19,23 @@ steps:
         from_secret: pypi_username
       password:
         from_secret: pypi_password
+    when:
+      branch:
+        - master
+
+---
+kind: pipeline
+name: dependabot
+type: docker
+
+steps:
+  - name: dependabot
+    image: xefir/docker-dependabot-gitea
+    environment:
+      GITHUB_ACCESS_TOKEN:
+        from_secret: github_access_token
+      GITEA_ACCESS_TOKEN:
+        from_secret: gitea_access_token
+    when:
+      event:
+        - cron

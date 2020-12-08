@@ -2,6 +2,7 @@
 > "PyNyaaTa", Xéfir's personal animes torrent search engine
 
 [![Build Status](https://ci.crystalyx.net/api/badges/Xefir/PyNyaaTa/status.svg)](https://ci.crystalyx.net/Xefir/PyNyaaTa)
+[![Docker Hub](https://img.shields.io/docker/pulls/xefir/pynyaata)](https://hub.docker.com/r/xefir/pynyaata)
 
 I'm lazy, and I want to search across several VF and VOSTFR torrents databases in one click.
 That's the starting point that build this app.
