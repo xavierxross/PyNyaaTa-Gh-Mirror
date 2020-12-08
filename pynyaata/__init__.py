@@ -2,13 +2,12 @@ from functools import wraps
 from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
-from werkzeug.security import check_password_hash
 
+import utils
 from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
-from .connectors import *
-from .connectors.core import ConnectorCore, ConnectorLang, ConnectorReturn
+from .connectors import get_instance, run_all
+from .connectors.core import ConnectorLang, ConnectorReturn
 from .forms import SearchForm, DeleteForm, EditForm
-from .utils import boldify, clean_model
 
 if MYSQL_ENABLED:
     from .config import db
@@ -27,7 +26,7 @@ def mysql_required(f):
 
 @auth.verify_password
 def verify_password(username, password):
-    return username == ADMIN_USERNAME and check_password_hash(ADMIN_PASSWORD, password)
+    return username == ADMIN_USERNAME and ADMIN_PASSWORD == password
 
 
 @app.template_filter('boldify')
@@ -179,8 +178,8 @@ def admin_edit(link_id=None):
         link = AnimeLink.query.filter_by(id=link_id).first()
         form.folder.data = link.title.folder.id
     else:
-        link = clean_model(AnimeLink())
-        link.title = clean_model(AnimeTitle())
+        link = utils.clean_model(AnimeLink())
+        link.title = utils.clean_model(AnimeTitle())
         link.vf = False
 
     return render_template('admin/edit.html', search_form=SearchForm(), link=link, folders=folders, action_form=form)

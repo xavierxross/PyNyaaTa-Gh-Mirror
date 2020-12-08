@@ -3,6 +3,11 @@ name: default
 type: docker
 
 steps:
+  - name: flake8
+    image: python
+    commands:
+      - pip install flake8
+      - flake8 pynyaata --ignore=E501
   - name: docker
     image: plugins/docker
     settings:
