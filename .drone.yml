@@ -28,6 +28,11 @@ steps:
       branch:
         - master
 
+trigger:
+  event:
+    exclude:
+      - cron
+
 ---
 kind: pipeline
 name: dependabot
@@ -41,6 +46,7 @@ steps:
         from_secret: github_access_token
       GITEA_ACCESS_TOKEN:
         from_secret: gitea_access_token
-    when:
-      event:
-        - cron
+
+trigger:
+  event:
+    - cron
