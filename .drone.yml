@@ -46,6 +46,7 @@ steps:
         from_secret: github_access_token
       GITEA_ACCESS_TOKEN:
         from_secret: gitea_access_token
+      PROJECT_PATH: Xefir/PyNyaaTa
 
 trigger:
   event:
