@@ -39,7 +39,7 @@ name: dependabot
 type: docker
 
 steps:
-  - name: dependabot
+  - name: dependabot-pip
     image: xefir/docker-dependabot-gitea
     environment:
       GITHUB_ACCESS_TOKEN:
@@ -47,6 +47,18 @@ steps:
       GITEA_ACCESS_TOKEN:
         from_secret: gitea_access_token
       PROJECT_PATH: Xefir/PyNyaaTa
+      GITEA_HOSTNAME: git.crystalyx.net
+      PACKAGE_MANAGER: pip
+  - name: dependabot-docker
+    image: xefir/docker-dependabot-gitea
+    environment:
+      GITHUB_ACCESS_TOKEN:
+        from_secret: github_access_token
+      GITEA_ACCESS_TOKEN:
+        from_secret: gitea_access_token
+      PROJECT_PATH: Xefir/PyNyaaTa
+      GITEA_HOSTNAME: git.crystalyx.net
+      PACKAGE_MANAGER: docker
 
 trigger:
   event:
