@@ -48,6 +48,7 @@ steps:
         from_secret: gitea_access_token
       PROJECT_PATH: Xefir/PyNyaaTa
       GITEA_HOSTNAME: git.crystalyx.net
+      GITEA_SCHEME: https
       PACKAGE_MANAGER: pip
   - name: dependabot-docker
     image: xefir/docker-dependabot-gitea
@@ -58,6 +59,7 @@ steps:
         from_secret: gitea_access_token
       PROJECT_PATH: Xefir/PyNyaaTa
       GITEA_HOSTNAME: git.crystalyx.net
+      GITEA_SCHEME: https
       PACKAGE_MANAGER: docker
 
 trigger:
