@@ -2,6 +2,7 @@ from functools import wraps
 from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
+from werkzeug.serving import WSGIRequestHandler
 
 from . import utils
 from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
@@ -186,4 +187,5 @@ def admin_edit(link_id=None):
 
 
 def run():
+    WSGIRequestHandler.protocol_version = 'HTTP/1.1'
     app.run('0.0.0.0', APP_PORT, IS_DEBUG)
