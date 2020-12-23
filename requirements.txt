@@ -9,6 +9,6 @@ beautifulsoup4==4.9.3
 python-dotenv==0.15.0
 cloudscraper==1.2.50
 Js2Py==0.70
-polling==0.3.1
+polling2==0.4.6
 dateparser==1.0.0
 Werkzeug==1.0.1
