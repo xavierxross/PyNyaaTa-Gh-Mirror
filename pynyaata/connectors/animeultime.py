@@ -51,14 +51,15 @@ class AnimeUltime(ConnectorCore):
                     url = tds[0].a
                     href = '%s/%s' % (self.base_url, url['href'])
 
-                    self.data.append({
-                        'lang': ConnectorLang.JP,
-                        'href': '%s/%s' % (self.base_url, url['href']),
-                        'name': url.get_text(),
-                        'type': tds[1].get_text(),
-                        'date': parse_date(None),
-                        'class': self.color if link_exist_in_db(href) else ''
-                    })
+                    if not any(href == d['href'] for d in self.data):
+                        self.data.append({
+                            'lang': ConnectorLang.JP,
+                            'href': href,
+                            'name': url.get_text(),
+                            'type': tds[1].get_text(),
+                            'date': parse_date(None),
+                            'class': self.color if link_exist_in_db(href) else ''
+                        })
             elif len(player) > 0:
                 name = html.select('h1')
                 ani_type = html.select('div.titre')
