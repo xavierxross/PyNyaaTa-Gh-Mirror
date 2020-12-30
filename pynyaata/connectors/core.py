@@ -122,6 +122,13 @@ def curl_content(url, params=None, ajax=False, debug=True):
             if 'solution' in response:
                 output = response['solution']['response']
 
+            if http_code == 500:
+                json_response = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
+                    'cmd': 'sessions.destroy',
+                    'session': cloudproxy_session,
+                }))
+                cloudproxy_session = None
+
             if debug and http_code != 200:
                 getLogger().exception('%s\n\n%s' % (str(e), json_response.text))
     except (RequestException, CaptchaException) as e:

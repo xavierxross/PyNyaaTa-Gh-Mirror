@@ -19,6 +19,7 @@ MYSQL_ENABLED = False
 
 app = Flask(__name__)
 app.name = 'PyNyaaTa'
+app.debug = IS_DEBUG
 app.secret_key = urandom(24).hex()
 app.url_map.strict_slashes = False
 auth = HTTPBasicAuth()
