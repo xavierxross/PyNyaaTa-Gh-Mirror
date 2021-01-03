@@ -191,7 +191,7 @@ class ConnectorCore(ABC):
         else:
             return ConnectorLang.JP
 
-    def run(self):
+    async def run(self):
         if self.on_error:
             if self.return_type is ConnectorReturn.SEARCH:
                 self.search()

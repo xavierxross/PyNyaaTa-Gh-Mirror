@@ -1,9 +1,8 @@
-import logging
+from asyncio import get_event_loop, set_event_loop, SelectorEventLoop
 from functools import wraps
 from operator import attrgetter, itemgetter
 
 from flask import redirect, render_template, request, url_for, abort
-from gevent.pywsgi import WSGIServer
 
 from . import utils
 from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
@@ -52,10 +51,14 @@ def colorify(model):
     return get_instance(model.link, model.title.keyword).color
 
 
+@app.context_processor
+def inject_user():
+    return dict(mysql_disabled=not MYSQL_ENABLED)
+
+
 @app.route('/')
 def home():
-    return render_template('layout.html', search_form=SearchForm(), title='Animes torrents search engine',
-                           mysql_disabled=not MYSQL_ENABLED)
+    return render_template('layout.html', search_form=SearchForm(), title='Animes torrents search engine')
 
 
 @app.route('/search')
@@ -64,14 +67,16 @@ def search():
     if not query:
         return redirect(url_for('home'))
 
-    return render_template('search.html', search_form=SearchForm(), connectors=run_all(query),
-                           mysql_disabled=not MYSQL_ENABLED)
+    set_event_loop(SelectorEventLoop())
+    return render_template('search.html', search_form=SearchForm(),
+                           connectors=get_event_loop().run_until_complete(run_all(query)))
 
 
 @app.route('/latest')
 @app.route('/latest/<int:page>')
 def latest(page=1):
-    torrents = run_all('', return_type=ConnectorReturn.HISTORY, page=page)
+    set_event_loop(SelectorEventLoop())
+    torrents = get_event_loop().run_until_complete(run_all('', return_type=ConnectorReturn.HISTORY, page=page))
 
     results = []
     for torrent in torrents:
@@ -80,8 +85,7 @@ def latest(page=1):
         result['self'] = get_instance(result['href'], '')
     results.sort(key=itemgetter('date'), reverse=True)
 
-    return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page,
-                           mysql_disabled=not MYSQL_ENABLED)
+    return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page)
 
 
 @app.route('/list')
@@ -188,6 +192,4 @@ def admin_edit(link_id=None):
 
 
 def run():
-    logging.basicConfig(level=logging.DEBUG if IS_DEBUG else logging.INFO)
-    http_server = WSGIServer(('', APP_PORT), app)
-    http_server.serve_forever()
+    app.run('0.0.0.0', APP_PORT, IS_DEBUG)
