@@ -12,6 +12,7 @@ class AnimeUltime(ConnectorCore):
     favicon = 'animeultime.png'
     base_url = 'http://www.anime-ultime.net'
     is_light = True
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         from_date = ''

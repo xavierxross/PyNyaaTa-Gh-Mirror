@@ -10,6 +10,7 @@ class Pantsu(ConnectorCore):
     favicon = 'pantsu.png'
     base_url = 'https://nyaa.net'
     is_light = False
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         sort_type = 4

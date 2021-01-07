@@ -44,16 +44,10 @@ You have to install MariaDB (or any MySQL server) to be able to access the admin
 
 YggTorrent use CloudFlare to protect them to DDoS attacks.
 This app will make abusive requests to their servers, and CloudFlare will try to detect if PyNyaaTa is a real human or not. *I think you have the answer to the question ...*
-Over time, CloudFlare will ask you systematically to prouve yourself.
-
-CloudFlare have three type of challenge to be completed (from the easiest to resolve to the hardest) :
-- Pure Javascript done through [cloudscraper](https://github.com/VeNoMouS/cloudscraper) without any configurations
-- CAPTCHA *(not supported but maybe soon™)*
-- JavaScript and browser actions done through [CloudProxy](https://github.com/NoahCardoza/CloudProxy)
-
-For CloudProxy, you have to have an instance running.
-Please refer to the [documentation](https://github.com/NoahCardoza/CloudProxy#installation) or install it via [docker](https://github.com/NoahCardoza/CloudProxy#docker).
-After that, change the `CLOUDPROXY_ENDPOINT` environnement variable to refer to your CloudProxy instance.
+Over time, CloudFlare will ask you systematically to prove yourself.
+To be able to see YggTorrent results, you have to have a FlareSolverr instance running.
+Please refer to their [documentation](https://github.com/FlareSolverr/FlareSolverr#installation).
+After that, change the `CLOUDPROXY_ENDPOINT` environment variable to refer to your CloudProxy instance.
 
 If you use PyNyaaTa with Docker and the `docker-compose.yml` from this repository, you don't have to do all this, it comes pre-installed.
 

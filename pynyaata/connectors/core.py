@@ -8,13 +8,10 @@ from logging import getLogger
 from urllib.parse import urlencode
 
 import requests
-from cloudscraper import create_scraper
-from cloudscraper.exceptions import CloudflareException, CaptchaException
 from requests import RequestException
 
-from ..config import CACHE_TIMEOUT, IS_DEBUG, REQUESTS_TIMEOUT, CLOUDPROXY_ENDPOINT
+from ..config import CACHE_TIMEOUT, REQUESTS_TIMEOUT, CLOUDPROXY_ENDPOINT
 
-scraper = create_scraper(interpreter='js2py', debug=IS_DEBUG)
 cloudproxy_session = None
 
 
@@ -80,9 +77,11 @@ ConnectorCache = Cache()
 
 
 def curl_content(url, params=None, ajax=False, debug=True):
+    from . import get_instance
     output = ''
     http_code = 500
     method = 'post' if (params is not None) else 'get'
+    instance = get_instance(url, '')
 
     if ajax:
         headers = {'X-Requested-With': 'XMLHttpRequest'}
@@ -90,15 +89,15 @@ def curl_content(url, params=None, ajax=False, debug=True):
         headers = {}
 
     try:
-        if method == 'post':
-            response = scraper.post(url, params, timeout=REQUESTS_TIMEOUT, headers=headers)
-        else:
-            response = scraper.get(url, timeout=REQUESTS_TIMEOUT, headers=headers)
+        if not instance.is_behind_cloudflare:
+            if method == 'post':
+                response = requests.post(url, params, timeout=REQUESTS_TIMEOUT, headers=headers)
+            else:
+                response = requests.get(url, timeout=REQUESTS_TIMEOUT, headers=headers)
 
-        output = response.text
-        http_code = response.status_code
-    except CloudflareException as e:
-        if CLOUDPROXY_ENDPOINT:
+            output = response.text
+            http_code = response.status_code
+        elif CLOUDPROXY_ENDPOINT:
             global cloudproxy_session
             if not cloudproxy_session:
                 json_session = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
@@ -123,15 +122,12 @@ def curl_content(url, params=None, ajax=False, debug=True):
                 output = response['solution']['response']
 
             if http_code == 500:
-                json_response = requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
+                requests.post(CLOUDPROXY_ENDPOINT, headers=headers, data=dumps({
                     'cmd': 'sessions.destroy',
                     'session': cloudproxy_session,
                 }))
                 cloudproxy_session = None
-
-            if debug and http_code != 200:
-                getLogger().exception('%s\n\n%s' % (str(e), json_response.text))
-    except (RequestException, CaptchaException) as e:
+    except RequestException as e:
         if debug:
             getLogger().exception(e)
 
@@ -162,6 +158,11 @@ class ConnectorCore(ABC):
     @property
     @abstractmethod
     def is_light(self):
+        pass
+
+    @property
+    @abstractmethod
+    def is_behind_cloudflare(self):
         pass
 
     def __init__(self, query, page=1, return_type=ConnectorReturn.SEARCH):
@@ -206,6 +207,7 @@ class Other(ConnectorCore):
     favicon = 'blank.png'
     base_url = ''
     is_light = True
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         pass

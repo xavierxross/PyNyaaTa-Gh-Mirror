@@ -15,6 +15,7 @@ class YggTorrent(ConnectorCore):
     base_url = 'https://www2.yggtorrent.si'
     is_light = False
     category = 2179
+    is_behind_cloudflare = True
 
     def get_full_search_url(self):
         sort_type = 'size'

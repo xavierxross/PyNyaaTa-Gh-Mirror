@@ -10,6 +10,7 @@ class Nyaa(ConnectorCore):
     favicon = 'nyaa.png'
     base_url = 'https://nyaa.si'
     is_light = False
+    is_behind_cloudflare = False
 
     def get_full_search_url(self):
         sort_type = 'size'
