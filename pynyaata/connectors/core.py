@@ -112,7 +112,6 @@ def curl_content(url, params=None, ajax=False, debug=True):
                 'cmd': 'request.%s' % method,
                 'url': url,
                 'session': cloudproxy_session,
-                'userAgent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0',
                 'postData': '%s' % urlencode(params) if (method == 'post') else ''
             }))
 
