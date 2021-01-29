@@ -4,13 +4,12 @@ from datetime import datetime
 from enum import Enum
 from functools import wraps
 from json import dumps, loads
-from logging import getLogger
 from urllib.parse import urlencode
 
 import requests
 from requests import RequestException
 
-from ..config import CACHE_TIMEOUT, REQUESTS_TIMEOUT, CLOUDPROXY_ENDPOINT
+from ..config import CACHE_TIMEOUT, REQUESTS_TIMEOUT, CLOUDPROXY_ENDPOINT, logger
 
 cloudproxy_session = None
 
@@ -128,7 +127,7 @@ def curl_content(url, params=None, ajax=False, debug=True):
                 cloudproxy_session = None
     except RequestException as e:
         if debug:
-            getLogger().exception(e)
+            logger.exception(e)
 
     return {'http_code': http_code, 'output': output}
 

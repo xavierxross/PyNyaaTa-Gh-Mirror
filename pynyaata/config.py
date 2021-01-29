@@ -1,7 +1,9 @@
+import logging
 from os import environ, urandom
 
 from flask import Flask
 from flask.cli import load_dotenv
+from flask_apscheduler import APScheduler
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
 
@@ -23,6 +25,9 @@ app.debug = IS_DEBUG
 app.secret_key = urandom(24).hex()
 app.url_map.strict_slashes = False
 auth = HTTPBasicAuth()
+scheduler = APScheduler(app=app)
+logging.basicConfig(level=(logging.DEBUG if IS_DEBUG else logging.INFO))
+logger = logging.getLogger(app.name)
 
 db_host = environ.get('MYSQL_SERVER')
 if db_host:
@@ -31,7 +36,7 @@ if db_host:
     db_password = environ.get('MYSQL_PASSWORD')
     db_name = environ.get('MYSQL_DATABASE')
     if not db_user or not db_password or not db_name:
-        print('Missing connection environment variables')
+        logger.error('Missing connection environment variables')
         exit()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
         db_user, db_password, db_host, db_name

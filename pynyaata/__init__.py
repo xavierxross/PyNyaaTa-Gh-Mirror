@@ -2,10 +2,13 @@ from asyncio import get_event_loop, set_event_loop, SelectorEventLoop
 from functools import wraps
 from operator import attrgetter, itemgetter
 
-from flask import redirect, render_template, request, url_for, abort
+import requests
+from flask import redirect, render_template, request, url_for, abort, json
+from requests import RequestException
 
 from . import utils
-from .config import app, auth, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG
+from .config import app, auth, logger, scheduler, ADMIN_USERNAME, ADMIN_PASSWORD, MYSQL_ENABLED, APP_PORT, IS_DEBUG, \
+    CLOUDPROXY_ENDPOINT
 from .connectors import get_instance, run_all
 from .connectors.core import ConnectorLang, ConnectorReturn
 from .forms import SearchForm, DeleteForm, EditForm
@@ -191,6 +194,28 @@ def admin_edit(link_id=None):
     return render_template('admin/edit.html', search_form=SearchForm(), link=link, folders=folders, action_form=form)
 
 
+@scheduler.task('interval', id='flaredestroyy', days=1)
+def flaredestroyy():
+    if CLOUDPROXY_ENDPOINT:
+        try:
+            json_session = requests.post(CLOUDPROXY_ENDPOINT, data=json.dumps({
+                'cmd': 'sessions.list'
+            }))
+            response = json.loads(json_session.text)
+            sessions = response['sessions']
+
+            for session in sessions:
+                requests.post(CLOUDPROXY_ENDPOINT, data=json.dumps({
+                    'cmd': 'sessions.destroy',
+                    'session': session
+                }))
+                logger.info('Destroyed %s' % session)
+        except RequestException as e:
+            logger.exception(e)
+
+
 def run():
     app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
+    scheduler.start()
+    flaredestroyy()
     app.run('0.0.0.0', APP_PORT, IS_DEBUG)
