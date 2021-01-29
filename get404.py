@@ -1,8 +1,6 @@
-from pynyaata.config import app
 from pynyaata.connectors.core import curl_content
 from pynyaata.models import AnimeLink
 
-app.config['SQLALCHEMY_ECHO'] = False
 links = AnimeLink.query.all()
 
 for link in links:

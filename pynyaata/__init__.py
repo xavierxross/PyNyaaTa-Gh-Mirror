@@ -192,4 +192,5 @@ def admin_edit(link_id=None):
 
 
 def run():
+    app.config['SQLALCHEMY_ECHO'] = IS_DEBUG
     app.run('0.0.0.0', APP_PORT, IS_DEBUG)
