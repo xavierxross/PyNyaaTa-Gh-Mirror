@@ -211,3 +211,6 @@ class Other(ConnectorCore):
 
     def get_history(self):
         pass
+
+    def is_vf(self, url):
+        return False
