@@ -85,7 +85,7 @@ def latest(page=1):
     for torrent in torrents:
         results = results + torrent.data
     for result in results:
-        result['self'] = get_instance(result['href'], '')
+        result['self'] = get_instance(result['href'])
     results.sort(key=itemgetter('date'), reverse=True)
 
     return render_template('latest.html', search_form=SearchForm(), torrents=results, page=page)
@@ -155,6 +155,8 @@ def admin_edit(link_id=None):
     form = EditForm(request.form)
 
     if form.validate_on_submit():
+        # Instance for VF tag
+        instance = get_instance(form.link.data)
         # Folder
         folder = AnimeFolder.query.filter_by(name=form.folder.data).first()
         folder = folder if folder else AnimeFolder()
@@ -177,7 +179,7 @@ def admin_edit(link_id=None):
         link.link = form.link.data
         link.season = form.season.data
         link.comment = form.comment.data
-        link.vf = form.is_vf.data
+        link.vf = instance.is_vf(form.link.data)
         db.session.add(link)
         db.session.commit()
         remove_garbage(link)

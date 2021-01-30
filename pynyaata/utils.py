@@ -45,3 +45,7 @@ def clean_model(obj):
 
 def check_blacklist_words(url):
     return any(word.lower() in url.lower() for word in BLACKLIST_WORDS)
+
+
+def check_if_vf(title):
+    return any(word.lower() in title.lower() for word in ['vf', 'multi', 'french'])

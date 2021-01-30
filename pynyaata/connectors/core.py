@@ -1,4 +1,3 @@
-import re
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -80,7 +79,7 @@ def curl_content(url, params=None, ajax=False, debug=True):
     output = ''
     http_code = 500
     method = 'post' if (params is not None) else 'get'
-    instance = get_instance(url, '')
+    instance = get_instance(url)
 
     if ajax:
         headers = {'X-Requested-With': 'XMLHttpRequest'}
@@ -183,12 +182,9 @@ class ConnectorCore(ABC):
     def get_history(self):
         pass
 
-    @staticmethod
-    def get_lang(str_to_test):
-        if re.search('(vf|multi|french)', str_to_test, re.IGNORECASE):
-            return ConnectorLang.FR
-        else:
-            return ConnectorLang.JP
+    @abstractmethod
+    def is_vf(self, url):
+        pass
 
     async def run(self):
         if self.on_error:

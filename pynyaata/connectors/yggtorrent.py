@@ -5,7 +5,7 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 from .core import ConnectorCore, ConnectorReturn, ConnectorCache, curl_content
-from ..utils import parse_date, link_exist_in_db, check_blacklist_words
+from ..utils import parse_date, link_exist_in_db, check_blacklist_words, check_if_vf
 
 
 class YggTorrent(ConnectorCore):
@@ -58,7 +58,7 @@ class YggTorrent(ConnectorCore):
                         valid_trs = valid_trs + 1
 
                         self.data.append({
-                            'lang': self.get_lang(url_safe),
+                            'vf': check_if_vf(url_safe),
                             'href': url['href'],
                             'name': url_safe,
                             'comment': '<a href="%s#comm" target="_blank"><i class="fa fa-comments-o"></i>%s</a>' %
@@ -76,6 +76,17 @@ class YggTorrent(ConnectorCore):
 
                 self.on_error = False
                 self.is_more = valid_trs and valid_trs is not len(trs) - 1
+
+    @ConnectorCache.cache_data
+    def is_vf(self, url):
+        response = curl_content(url)
+
+        if response['http_code'] == 200:
+            html = BeautifulSoup(response['output'], 'html.parser')
+            title = html.select('#title h1')
+            return check_if_vf(title[0].get_text())
+
+        return False
 
 
 class YggAnimation(YggTorrent):

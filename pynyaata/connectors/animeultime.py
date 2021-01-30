@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
 
-from .core import ConnectorCore, ConnectorReturn, ConnectorCache, ConnectorLang, curl_content
+from .core import ConnectorCore, ConnectorReturn, ConnectorCache, curl_content
 from ..utils import parse_date, link_exist_in_db
 
 
@@ -54,7 +54,7 @@ class AnimeUltime(ConnectorCore):
 
                     if not any(href == d['href'] for d in self.data):
                         self.data.append({
-                            'lang': ConnectorLang.JP,
+                            'vf': self.is_vf(),
                             'href': href,
                             'name': url.get_text(),
                             'type': tds[1].get_text(),
@@ -67,7 +67,7 @@ class AnimeUltime(ConnectorCore):
                 href = '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie'])
 
                 self.data.append({
-                    'lang': ConnectorLang.JP,
+                    'vf': self.is_vf(),
                     'href': '%s/file-0-1/%s' % (self.base_url, player[0]['data-serie']),
                     'name': name[0].get_text(),
                     'type': ani_type[0].get_text().replace(':', ''),
@@ -96,7 +96,7 @@ class AnimeUltime(ConnectorCore):
                     href = '%s/%s' % (self.base_url, link['href'])
 
                     self.data.append({
-                        'lang': ConnectorLang.JP,
+                        'vf': self.is_vf(),
                         'href': '%s/%s' % (self.base_url, link['href']),
                         'name': link.get_text(),
                         'type': tds[4].get_text(),
@@ -105,3 +105,7 @@ class AnimeUltime(ConnectorCore):
                     })
 
             self.on_error = False
+
+    @ConnectorCache.cache_data
+    def is_vf(self, url=''):
+        return False

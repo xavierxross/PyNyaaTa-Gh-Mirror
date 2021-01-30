@@ -27,7 +27,7 @@
                     <img class="favicon"
                          src="{{ url_for('static', filename='favicons/%s' % torrent.self.favicon) }}" alt="">
                     <i>&nbsp;</i>
-                    {{ torrent.lang.value }}
+                    {{ torrent.vf|flagify }}
                     <a href="{{ torrent.href }}" target="_blank">
                         {{ torrent.name|boldify|safe }}
                     </a>

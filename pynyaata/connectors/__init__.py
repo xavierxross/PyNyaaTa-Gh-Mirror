@@ -20,7 +20,7 @@ async def run_all(*args, **kwargs):
     return list(await gather(*coroutines))
 
 
-def get_instance(url, query):
+def get_instance(url, query=''):
     if 'nyaa.si' in url:
         return Nyaa(query)
     elif 'nyaa.net' in url:

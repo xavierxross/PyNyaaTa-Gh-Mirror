@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
 from .core import ConnectorCore, ConnectorReturn, ConnectorCache, curl_content
-from ..utils import parse_date, link_exist_in_db, check_blacklist_words
+from ..utils import parse_date, link_exist_in_db, check_blacklist_words, check_if_vf
 
 
 class Pantsu(ConnectorCore):
@@ -51,7 +51,7 @@ class Pantsu(ConnectorCore):
                     href = self.base_url + url['href']
 
                     self.data.append({
-                        'lang': self.get_lang(url_safe),
+                        'vf': check_if_vf(url_safe),
                         'href': href,
                         'name': url_safe,
                         'comment': '',
@@ -67,3 +67,15 @@ class Pantsu(ConnectorCore):
 
             self.on_error = False
             self.is_more = valid_trs and valid_trs is not len(trs) - 1
+
+    @ConnectorCache.cache_data
+    def is_vf(self, url):
+        response = curl_content(url)
+
+        if response['http_code'] == 200:
+            html = BeautifulSoup(response['output'], 'html.parser')
+            title = html.select('h1.torrent-hr')
+            print(title, flush=True)
+            return check_if_vf(title[0].get_text())
+
+        return False

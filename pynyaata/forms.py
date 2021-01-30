@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, HiddenField, StringField
+from wtforms import HiddenField, StringField
 from wtforms.fields.html5 import SearchField, URLField
 from wtforms.validators import DataRequired
 
@@ -23,4 +23,3 @@ class EditForm(FlaskForm):
     season = StringField('season', validators=[DataRequired()])
     comment = StringField('comment')
     keyword = StringField('keyword', validators=[DataRequired()])
-    is_vf = BooleanField('is_vf')

@@ -32,7 +32,7 @@
             {% for torrent in connector.data %}
                 <tr class="{{ torrent.class }}">
                     <td>
-                        {{ torrent.lang.value }}
+                        {{ torrent.vf|flagify }}
                         <a href="{{ torrent.href }}" target="_blank">
                             {{ torrent.name|boldify|safe }}
                         </a>
