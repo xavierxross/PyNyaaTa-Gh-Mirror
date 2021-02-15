@@ -12,7 +12,7 @@ class YggTorrent(ConnectorCore):
     color = 'is-success'
     title = 'YggTorrent'
     favicon = 'yggtorrent.png'
-    base_url = 'https://www2.yggtorrent.si'
+    base_url = 'https://www4.yggtorrent.li'
     is_light = False
     category = 2179
     is_behind_cloudflare = True
