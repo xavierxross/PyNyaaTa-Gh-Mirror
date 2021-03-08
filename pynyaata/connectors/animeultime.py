@@ -37,7 +37,7 @@ class AnimeUltime(ConnectorCore):
             title = html.select('div.title')
             player = html.select('div.AUVideoPlayer')
 
-            if 'Recherche' in title[0].get_text():
+            if len(title) > 0 and 'Recherche' in title[0].get_text():
                 trs = html.select('table.jtable tr')
 
                 for i, tr in enumerate(trs):

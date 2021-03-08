@@ -34,7 +34,7 @@
         {% block add_button %}{% endblock %}
         {% if request.args.get('q') %}
             <a class="navbar-item has-tooltip-bottom has-tooltip-hidden-desktop" data-tooltip="TVDB"
-               href="https://www.thetvdb.com/search?menu%5Btype%5D=TV&query={{ request.args.get('q') }}"
+               href="https://www.thetvdb.com/search?menu%5Btype%5D=series&query={{ request.args.get('q') }}"
                target="_blank">
                 <i class="fa fa-television"></i><i>&nbsp;</i>
                 <span class="is-hidden-mobile">TVDB</span>
