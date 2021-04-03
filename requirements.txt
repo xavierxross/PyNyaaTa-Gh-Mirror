@@ -7,5 +7,5 @@ WTForms==2.3.3
 PyMySQL==1.0.2
 requests==2.25.1
 beautifulsoup4==4.9.3
-python-dotenv==0.16.0
+python-dotenv==0.17.0
 dateparser==1.0.0
