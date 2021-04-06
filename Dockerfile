@@ -1,4 +1,4 @@
-FROM python:3.9.3-slim
+FROM python:3.9.4-slim
 
 COPY pynyaata /app/pynyaata
 COPY requirements.txt *.py /app/
